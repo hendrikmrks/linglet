@@ -41,7 +41,15 @@ RUN chmod +x /app/node_modules/prisma/build/index.js && \
 # Seed scripts needed for deploy-time seeding
 COPY --from=builder /app/seed*.js ./
 COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
+# Runtime deps for seed scripts (pg, bcryptjs, dotenv + pg sub-deps)
+COPY --from=deps /app/node_modules/dotenv ./node_modules/dotenv
+COPY --from=deps /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=deps /app/node_modules/pg ./node_modules/pg
+COPY --from=deps /app/node_modules/pg-connection-string ./node_modules/pg-connection-string
+COPY --from=deps /app/node_modules/pg-pool ./node_modules/pg-pool
+COPY --from=deps /app/node_modules/pg-protocol ./node_modules/pg-protocol
+COPY --from=deps /app/node_modules/pg-types ./node_modules/pg-types
+COPY --from=deps /app/node_modules/pgpass ./node_modules/pgpass
 
 USER nextjs
 
