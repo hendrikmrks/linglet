@@ -42,18 +42,9 @@ jobs:
             fi
             # Dev .env may have wrong credentials; use prod credentials with dev database
             export PROD_DB_URL=$(grep ^DATABASE_URL /opt/linglet/prod/.env | cut -d= -f2-)
-            export DEV_DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2-)
-            DB_URL=$(python3 << 'PYEOF'
-import os, urllib.parse
-prod = urllib.parse.urlparse(os.environ['PROD_DB_URL'])
-dev_raw = os.environ['DEV_DB_URL'].replace('host.docker.internal', '127.0.0.1')
-dev = urllib.parse.urlparse(dev_raw)
-netloc = '{}:{}@{}:{}'.format(prod.username, prod.password, dev.hostname, dev.port or 5432)
-print(urllib.parse.urlunparse(dev._replace(netloc=netloc)))
-PYEOF
-)
-            echo "DB host: $(python3 -c "import os,urllib.parse; print(urllib.parse.urlparse(os.environ.get('DB_URL','')).hostname)" DB_URL="$DB_URL" 2>/dev/null || echo unknown)"
-            echo "DB name: $(python3 -c "import os,urllib.parse; print(urllib.parse.urlparse(os.environ.get('DB_URL','')).path[1:])" DB_URL="$DB_URL" 2>/dev/null || echo unknown)"
+            export DEV_DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | sed 's/host\.docker\.internal/127.0.0.1/')
+            DB_URL=$(python3 -c "import os,urllib.parse; prod=urllib.parse.urlparse(os.environ['PROD_DB_URL']); dev=urllib.parse.urlparse(os.environ['DEV_DB_URL']); netloc='{}:{}@{}:{}'.format(prod.username,prod.password,dev.hostname,dev.port or 5432); print(urllib.parse.urlunparse(dev._replace(netloc=netloc)))")
+            echo "Migration target: $(echo "$DB_URL" | grep -oP '(?<=@)[^/]+/[^?]+')"
 
             echo "==> Building image"
             docker compose -f docker-compose.dev.yml build --no-cache
