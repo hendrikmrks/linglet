@@ -158,17 +158,17 @@ export function ChapterList() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1">
               <p className="text-sm font-semibold text-indigo-800 mb-1">
-                🎉 Fast geschafft! Du bist {prewallData.pct}% durch die kostenlose Lernphase.
+                🎉 {t('chapters.prewallTitlePrefix')} {prewallData.pct}% {t('chapters.prewallTitleSuffix')}
               </p>
               <p className="text-xs text-indigo-700 mb-3">
-                Kapitel „{prewallData.nextChapterTitle}" wartet auf dich — schalte jetzt frei damit dein Lerntempo nicht stoppt.
+                {t('chapters.prewallBodyPrefix')} „{prewallData.nextChapterTitle}" {t('chapters.prewallBodySuffix')}
               </p>
               <div className="flex items-center gap-2">
                 <Link
                   href="/settings/upgrade"
                   className="inline-flex items-center gap-1.5 bg-indigo-600 text-white text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition-colors"
                 >
-                  ⭐ Jetzt Premium werden
+                  ⭐ {t('chapters.prewallCta')}
                 </Link>
                 <button
                   onClick={() => {
@@ -177,7 +177,7 @@ export function ChapterList() {
                   }}
                   className="text-xs text-indigo-500 hover:text-indigo-700 transition-colors"
                 >
-                  Später
+                  {t('chapters.prewallLater')}
                 </button>
               </div>
             </div>
@@ -187,7 +187,7 @@ export function ChapterList() {
                 setPrewallDismissed(true);
               }}
               className="text-indigo-400 hover:text-indigo-600 transition-colors shrink-0"
-              aria-label="Schließen"
+              aria-label={t('common.close')}
             >
               ✕
             </button>

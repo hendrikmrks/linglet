@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/language-context';
+import { useTranslation } from '@/lib/use-translation';
 
 interface Chapter {
   id: string;
@@ -61,6 +62,7 @@ const getLanguageFlag = (lang: string) => {
 
 export function ContentManager() {
   const { language } = useLanguage();
+  const { t } = useTranslation(language);
   const [activeTab, setActiveTab] = useState<Tab>('chapters');
   const [allChapters, setAllChapters] = useState<Chapter[]>([]); // All chapters without filter
   const [chapters, setChapters] = useState<Chapter[]>([]); // Filtered chapters
@@ -830,10 +832,10 @@ export function ContentManager() {
                     </div>
                     <div className="flex gap-2 ml-4">
                       <Button size="sm" variant="secondary" onClick={() => handleEditChapter(chapter)}>
-                        ✏️ Bearbeiten
+                        ✏️ {t('common.edit')}
                       </Button>
                       <Button size="sm" variant="secondary" onClick={() => handleDeleteChapter(chapter.id)}>
-                        🗑️ Löschen
+                        🗑️ {t('common.delete')}
                       </Button>
                     </div>
                   </div>
@@ -1025,10 +1027,10 @@ export function ContentManager() {
                         </div>
                         <div className="flex gap-2 ml-4">
                           <Button size="sm" variant="secondary" onClick={() => handleEditSubchapter(subchapter)}>
-                            ✏️ Bearbeiten
+                            ✏️ {t('common.edit')}
                           </Button>
                           <Button size="sm" variant="secondary" onClick={() => handleDeleteSubchapter(subchapter.id)}>
-                            🗑️ Löschen
+                            🗑️ {t('common.delete')}
                           </Button>
                         </div>
                       </div>

@@ -114,9 +114,9 @@ function DashboardContent({ user }: { user: any }) {
                 <div className="h-3 w-48 bg-gray-200 rounded animate-pulse mt-1" />
               ) : missedXp > 0 ? (
                 <p className="text-xs text-gray-500">
-                  Diese Woche hättest du{' '}
+                  {t('dashboard.missedXpPrefix')}{' '}
                   <span className="text-amber-600 font-semibold">+{missedXp} XP</span>{' '}
-                  mehr gesammelt. 🔒
+                  {t('dashboard.missedXpSuffix')}
                 </p>
               ) : (
                 <p className="text-xs text-gray-500">{t('dashboard.unlockPremium')}</p>

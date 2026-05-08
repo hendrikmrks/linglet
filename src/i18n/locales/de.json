@@ -15,7 +15,8 @@
     "submit": "Senden",
     "loading": "Lädt...",
     "error": "Fehler",
-    "success": "Erfolg"
+    "success": "Erfolg",
+    "close": "Schließen"
   },
   "auth": {
     "email": "E-Mail",
@@ -49,7 +50,8 @@
     "loginFailed": "Anmelden fehlgeschlagen",
     "registerFailed": "Registrierung fehlgeschlagen",
     "userExists": "Benutzer mit dieser E-Mail existiert bereits",
-    "errorOccurred": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    "errorOccurred": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+    "emailPlaceholder": "max@example.com"
   },
   "dashboard": {
     "welcome": "Willkommen",
@@ -65,7 +67,14 @@
     "upgrading": "Upgrade zu Premium",
     "startLesson": "Lektion starten",
     "startLessonDescription": "Mache weiter und sammle XP.",
-    "readyToLearn": "Bereit zum Lernen?"
+    "readyToLearn": "Bereit zum Lernen?",
+    "missedXpPrefix": "Diese Woche hättest du",
+    "missedXpSuffix": "mehr XP gesammelt. 🔒",
+    "learningProgress": "Dein Lernfortschritt",
+    "lessonsLabel": "Lektionen",
+    "cefrA1Label": "Anfänger",
+    "cefrA2Label": "Grundkenntnisse",
+    "cefrB1Label": "Fortgeschritten"
   },
   "profile": {
     "editProfile": "Profil bearbeiten",
@@ -96,7 +105,8 @@
     "deleteConfirmMessage": "Sind Sie sicher, dass Sie Ihr Konto löschen möchten? Dies wird alle Ihre Daten, Fortschritte und Premium-Anfragen entfernen.",
     "deleteIrreversible": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "deleteAccountConfirm": "Ja, Konto löschen",
-    "deleteFailed": "Fehler beim Löschen des Kontos"
+    "deleteFailed": "Fehler beim Löschen des Kontos",
+    "avatarAlt": "Profilbild"
   },
   "settings": {
     "changePasswordTitle": "Passwort ändern",
@@ -147,7 +157,11 @@
     "messagePlaceholder": "Sagen Sie uns alles, was wir sonst noch wissen sollten...",
     "requestSubmitted": "Premium-Anfrage eingereicht! Wir kontaktieren Sie bald.",
     "requestPending": "Sie haben bereits eine Premium-Anfrage eingereicht. Bitte warten Sie auf die Antwort.",
-    "requestFailed": "Anfrage fehlgeschlagen"
+    "requestFailed": "Anfrage fehlgeschlagen",
+    "freePriceLabel": "Kostenlos",
+    "perMonth": "/Monat",
+    "paymentMethodsQuestion": "Welche Zahlungsmethoden akzeptiert ihr?",
+    "paymentMethodsAnswer": "Wir akzeptieren Kreditkarten (Visa, Mastercard), PayPal und Banküberweisungen. Die Zahlungsdetails erhältst du nach der Freigabe deiner Anfrage."
   },
   "navbar": {
     "home": "Startseite",
@@ -243,7 +257,11 @@
     "premiumOnlyTitle": "Nur für Premium-Mitglieder",
     "premiumOnlySubtitle": "Sieh, wie du im Vergleich zu anderen Lernenden abschneidest. Werde Premium und schalte das Ranking frei!",
     "premiumOnlyCta": "Jetzt Premium werden",
-    "premiumOnlyNote": "Free-Nutzer können das Ranking nicht einsehen."
+    "premiumOnlyNote": "Free-Nutzer können das Ranking nicht einsehen.",
+    "estimatedRankPrefix": "Basierend auf deinen",
+    "estimatedRankMiddle": "wärst du aktuell auf ungefähr Platz",
+    "estimatedRankConnector": "von",
+    "estimatedRankSuffix": "Lernenden."
   },
   "footer": {
     "imprint": "Impressum",
@@ -402,7 +420,8 @@
     "successTitle": "Nachricht gesendet",
     "successSubtitle": "Danke! Wir melden uns bald.",
     "directTitle": "Kontakt",
-    "directBody": "E-Mail: support@hendrik.tech"
+    "directBody": "E-Mail: support@hendrik.tech",
+    "fieldEmailPlaceholder": "max@example.com"
   },
   "path": {
     "title": "Lernpfad",
@@ -420,50 +439,137 @@
     "requiredXp": "Benotigte XP",
     "ch1": {
       "title": "Grundlagen",
-      "l1": { "title": "Basics 1", "theme": "Alphabet und Laute" },
-      "l2": { "title": "Basics 2", "theme": "Haefige Redewendungen" },
-      "l3": { "title": "Zahlen und Zeit", "theme": "Zaehlen, Uhrzeit, Daten" },
-      "l4": { "title": "Vorstellen", "theme": "Begruessung und Smalltalk" },
-      "l5": { "title": "Farben und Eigenschaften", "theme": "Farben und Adjektive" },
-      "l6": { "title": "Wochentage und Monate", "theme": "Kalender und Datum" },
-      "l7": { "title": "Wetter und Jahreszeiten", "theme": "Das Wetter beschreiben" },
-      "l8": { "title": "Im Klassenzimmer", "theme": "Schulsachen und Lernen" },
-      "test": { "title": "Kapitel 1 Test", "theme": "Abschlusstest Grundlagen" }
+      "l1": {
+        "title": "Basics 1",
+        "theme": "Alphabet und Laute"
+      },
+      "l2": {
+        "title": "Basics 2",
+        "theme": "Haefige Redewendungen"
+      },
+      "l3": {
+        "title": "Zahlen und Zeit",
+        "theme": "Zaehlen, Uhrzeit, Daten"
+      },
+      "l4": {
+        "title": "Vorstellen",
+        "theme": "Begruessung und Smalltalk"
+      },
+      "l5": {
+        "title": "Farben und Eigenschaften",
+        "theme": "Farben und Adjektive"
+      },
+      "l6": {
+        "title": "Wochentage und Monate",
+        "theme": "Kalender und Datum"
+      },
+      "l7": {
+        "title": "Wetter und Jahreszeiten",
+        "theme": "Das Wetter beschreiben"
+      },
+      "l8": {
+        "title": "Im Klassenzimmer",
+        "theme": "Schulsachen und Lernen"
+      },
+      "test": {
+        "title": "Kapitel 1 Test",
+        "theme": "Abschlusstest Grundlagen"
+      }
     },
     "ch2": {
       "title": "Alltag",
-      "l1": { "title": "Essen und Trinken", "theme": "Bestellen und Vorlieben" },
-      "l2": { "title": "Familie und Freunde", "theme": "Personen und Beziehungen" },
-      "l3": { "title": "Zuhause und Routinen", "theme": "Taegliche Aktivitaeten" },
-      "l4": { "title": "Einkaufen Basics", "theme": "Laeden und Preise" }
+      "l1": {
+        "title": "Essen und Trinken",
+        "theme": "Bestellen und Vorlieben"
+      },
+      "l2": {
+        "title": "Familie und Freunde",
+        "theme": "Personen und Beziehungen"
+      },
+      "l3": {
+        "title": "Zuhause und Routinen",
+        "theme": "Taegliche Aktivitaeten"
+      },
+      "l4": {
+        "title": "Einkaufen Basics",
+        "theme": "Laeden und Preise"
+      }
     },
     "ch3": {
       "title": "Reisen",
-      "l1": { "title": "Wegbeschreibung", "theme": "Nach dem Weg fragen" },
-      "l2": { "title": "Transport", "theme": "Tickets und Fahrplaene" },
-      "l3": { "title": "Hotel und Check-in", "theme": "Buchung und Service" },
-      "l4": { "title": "Am Flughafen", "theme": "Sicherheitskontrolle" }
+      "l1": {
+        "title": "Wegbeschreibung",
+        "theme": "Nach dem Weg fragen"
+      },
+      "l2": {
+        "title": "Transport",
+        "theme": "Tickets und Fahrplaene"
+      },
+      "l3": {
+        "title": "Hotel und Check-in",
+        "theme": "Buchung und Service"
+      },
+      "l4": {
+        "title": "Am Flughafen",
+        "theme": "Sicherheitskontrolle"
+      }
     },
     "ch4": {
       "title": "Kultur und Arbeit",
-      "l1": { "title": "Einkaufen", "theme": "Groessen und Preise" },
-      "l2": { "title": "Gesundheit", "theme": "Symptome und Apotheke" },
-      "l3": { "title": "Arbeit und Studium", "theme": "Buero und Schule" },
-      "l4": { "title": "Arbeitsalltag", "theme": "Jobs und Zeiten" }
+      "l1": {
+        "title": "Einkaufen",
+        "theme": "Groessen und Preise"
+      },
+      "l2": {
+        "title": "Gesundheit",
+        "theme": "Symptome und Apotheke"
+      },
+      "l3": {
+        "title": "Arbeit und Studium",
+        "theme": "Buero und Schule"
+      },
+      "l4": {
+        "title": "Arbeitsalltag",
+        "theme": "Jobs und Zeiten"
+      }
     },
     "ch5": {
       "title": "Stadtleben",
-      "l1": { "title": "Öffentliche Dienste", "theme": "Post und Bank" },
-      "l2": { "title": "Termine", "theme": "Planen und Verspaetung" },
-      "l3": { "title": "Wohnen", "theme": "Miete und Nebenkosten" },
-      "l4": { "title": "Nachbarschaft", "theme": "Rund um die Stadt" }
+      "l1": {
+        "title": "Öffentliche Dienste",
+        "theme": "Post und Bank"
+      },
+      "l2": {
+        "title": "Termine",
+        "theme": "Planen und Verspaetung"
+      },
+      "l3": {
+        "title": "Wohnen",
+        "theme": "Miete und Nebenkosten"
+      },
+      "l4": {
+        "title": "Nachbarschaft",
+        "theme": "Rund um die Stadt"
+      }
     },
     "ch6": {
       "title": "Gesprache",
-      "l1": { "title": "Meinungen", "theme": "Zustimmen und Ablehnen" },
-      "l2": { "title": "Geschichten", "theme": "Vergangenheit" },
-      "l3": { "title": "Plaene", "theme": "Zukunft und Absichten" },
-      "l4": { "title": "Ratschlaege", "theme": "Tipps und Hinweise" }
+      "l1": {
+        "title": "Meinungen",
+        "theme": "Zustimmen und Ablehnen"
+      },
+      "l2": {
+        "title": "Geschichten",
+        "theme": "Vergangenheit"
+      },
+      "l3": {
+        "title": "Plaene",
+        "theme": "Zukunft und Absichten"
+      },
+      "l4": {
+        "title": "Ratschlaege",
+        "theme": "Tipps und Hinweise"
+      }
     }
   },
   "lesson": {
@@ -575,7 +681,48 @@
     "canSeeLeaderboardPremium": "Premium-Nutzer koennen Rangliste sehen",
     "saveSettings": "Einstellungen speichern",
     "settingsSaved": "Einstellungen gespeichert",
-    "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden"
+    "settingsSaveFailed": "Einstellungen konnten nicht gespeichert werden",
+    "reportsTitle": "Beanstandungen",
+    "noOpenReports": "Keine offenen Beanstandungen.",
+    "reportedBy": "Gemeldet von",
+    "issueType": "Art",
+    "issueWord": "Vokabel",
+    "issueTranslation": "Übersetzung",
+    "comment": "Kommentar",
+    "emptyValue": "-",
+    "resolve": "Erledigt",
+    "shopTitle": "Shop Verwaltung",
+    "shopSubtitle": "Preise anpassen fuer Angebote",
+    "shopIcon": "Icon",
+    "shopType": "Typ",
+    "shopPriceXp": "Preis (XP)",
+    "shopStatus": "Status",
+    "shopPurchases": "Kaeufe",
+    "shopPriceUpdated": "Preis aktualisiert",
+    "shopActive": "Aktiv",
+    "shopInactive": "Inaktiv",
+    "shopAdjustPrice": "Preis anpassen",
+    "faqManagementTitle": "FAQ Verwaltung",
+    "faqManagementSubtitle": "Pflege die FAQ-Einträge für die Premium-Upgrade-Seite.",
+    "faqTitle": "Premium-FAQ",
+    "faqSortHint": "Sortierung erfolgt aufsteigend nach Reihenfolge.",
+    "faqAdd": "FAQ hinzufügen",
+    "faqEdit": "FAQ bearbeiten",
+    "faqEmpty": "Noch keine FAQ-Einträge vorhanden.",
+    "faqQuestion": "Frage",
+    "faqQuestionPlaceholder": "z. B. Wie kann ich Premium kündigen?",
+    "faqAnswer": "Antwort",
+    "faqAnswerPlaceholder": "Antwort für die Premium-FAQ",
+    "faqLanguage": "Sprache",
+    "faqOrder": "Reihenfolge",
+    "faqModalHint": "Änderungen werden direkt auf der Upgrade-Seite sichtbar.",
+    "faqLoadFailed": "FAQs konnten nicht geladen werden.",
+    "faqSaveFailed": "FAQ konnte nicht gespeichert werden.",
+    "faqDeleteFailed": "FAQ konnte nicht gelöscht werden.",
+    "faqCreated": "FAQ erfolgreich erstellt.",
+    "faqUpdated": "FAQ erfolgreich aktualisiert.",
+    "faqDeleted": "FAQ erfolgreich gelöscht.",
+    "faqDeleteConfirm": "FAQ wirklich löschen?"
   },
   "shop": {
     "title": "Shop",
@@ -645,7 +792,10 @@
     "print": "Drucken / Als PDF speichern",
     "back": "Zurück",
     "premiumOnly": "Diese Funktion ist nur für Premium-Nutzer verfügbar.",
-    "loading": "Lade Zertifikat..."
+    "loading": "Lade Zertifikat...",
+    "previewTitle": "Dein Zertifikat wartet",
+    "previewSubtitle": "Schließe dein Sprachniveau ab und teile dein Zertifikat mit der Welt.",
+    "previewHint": "Du siehst eine Vorschau mit deinem echten Namen."
   },
   "onboarding": {
     "step": "Schritt",
@@ -701,7 +851,13 @@
     "noChapters": "Keine Kapitel vorhanden",
     "contentComingSoon": "Die Inhalte für deine Lernsprache werden bald verfügbar sein",
     "start": "START →",
-    "test": "TEST →"
+    "test": "TEST →",
+    "prewallTitlePrefix": "Fast geschafft! Du bist",
+    "prewallTitleSuffix": "durch die kostenlose Lernphase.",
+    "prewallBodyPrefix": "Kapitel",
+    "prewallBodySuffix": "wartet auf dich — schalte jetzt frei, damit dein Lerntempo nicht stoppt.",
+    "prewallCta": "Jetzt Premium werden",
+    "prewallLater": "Später"
   },
   "exercise": {
     "whatDoesThisMean": "Was bedeutet dieses Wort?",

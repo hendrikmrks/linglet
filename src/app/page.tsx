@@ -315,7 +315,7 @@ export default function Home() {
           >
             {LANGUAGES.map((lang) => (
               <option key={lang.code} value={lang.code}>
-                {lang.code === 'de' ? '🇩🇪' : lang.code === 'en' ? '🇬🇧' : '🇧🇷'} {lang.name}
+                {lang.code === 'de' ? '🇩🇪' : lang.code === 'en' ? '🇬🇧' : '🇧🇷'} {t(`lesson.languages.${lang.code}`)}
               </option>
             ))}
           </select>

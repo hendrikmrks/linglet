@@ -129,7 +129,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         name="email"
         value={formData.email}
         onChange={handleChange}
-        placeholder="you@example.com"
+        placeholder={t('auth.emailPlaceholder')}
         error={fieldErrors.email}
       />
 

@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/language-context';
 import { useTranslation } from '@/lib/use-translation';
 import { ContentManager } from '@/components/content-manager';
+import { AdminNav } from '@/components/admin/admin-nav';
 
 interface AdminUser {
   id: string;
@@ -321,6 +322,8 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
         <p className="text-gray-600">{t('admin.subtitle')}</p>
       </div>
 
+      <AdminNav />
+
       {/* Tab Navigation */}
       <div className="flex gap-1 mb-6 border-b border-gray-200 overflow-x-auto">
         <button
@@ -375,7 +378,7 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
           }`}
           onClick={() => setActiveTab('reports')}
         >
-          🚩 Beanstandungen
+          🚩 {t('admin.reportsTitle')}
           {openReports.length > 0 && (
             <span className="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full bg-yellow-200 text-yellow-800">
               {openReports.length}
@@ -620,12 +623,12 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
       {activeTab === 'reports' && (
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-gray-900">Beanstandungen</h2>
-            <span className="text-sm text-gray-500">Offen: {openReports.length}</span>
+            <h2 className="text-2xl font-bold text-gray-900">{t('admin.reportsTitle')}</h2>
+            <span className="text-sm text-gray-500">{t('admin.pendingCount')}: {openReports.length}</span>
           </div>
 
           {openReports.length === 0 ? (
-            <p className="text-gray-600">Keine offenen Beanstandungen.</p>
+            <p className="text-gray-600">{t('admin.noOpenReports')}</p>
           ) : (
             <div className="space-y-4">
               {openReports.map((report) => (
@@ -651,17 +654,17 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                   </div>
                   <div className="text-sm text-gray-700">
                     <p>
-                      <span className="font-semibold">Gemeldet von:</span> {report.name} ({report.email})
+                      <span className="font-semibold">{t('admin.reportedBy')}:</span> {report.name} ({report.email})
                     </p>
                     <p>
-                      <span className="font-semibold">Art:</span>{' '}
-                      {report.issueType === 'WORD' ? 'Vokabel' : 'Übersetzung'}
+                      <span className="font-semibold">{t('admin.issueType')}:</span>{' '}
+                      {report.issueType === 'WORD' ? t('admin.issueWord') : t('admin.issueTranslation')}
                     </p>
                     <p>
-                      <span className="font-semibold">Grund:</span> {report.reason}
+                      <span className="font-semibold">{t('admin.reason')}:</span> {report.reason}
                     </p>
                     <p>
-                      <span className="font-semibold">Kommentar:</span> {report.comment || '-'}
+                      <span className="font-semibold">{t('admin.comment')}:</span> {report.comment || t('admin.emptyValue')}
                     </p>
                   </div>
                   <div className="flex gap-3">
@@ -670,7 +673,7 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                       onClick={() => handleResolveReport(report.id)}
                       isLoading={isSaving}
                     >
-                      Erledigt
+                      {t('admin.resolve')}
                     </Button>
                   </div>
                 </div>
@@ -753,8 +756,8 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
       {activeTab === 'shop' && (
         <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Shop Verwaltung</h2>
-            <p className="text-sm text-gray-500">Preise anpassen fuer Angebote</p>
+            <h2 className="text-2xl font-bold text-gray-900">{t('admin.shopTitle')}</h2>
+            <p className="text-sm text-gray-500">{t('admin.shopSubtitle')}</p>
           </div>
 
           {shopMessage && (
@@ -767,13 +770,13 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
             <table className="w-full">
               <thead>
                 <tr className="text-left text-gray-600 font-medium">
-                  <th className="py-2 pr-4">Icon</th>
-                  <th className="py-2 pr-4">Name</th>
-                  <th className="py-2 pr-4">Typ</th>
-                  <th className="py-2 pr-4">Preis (XP)</th>
-                  <th className="py-2 pr-4">Status</th>
-                  <th className="py-2 pr-4">Kaeufe</th>
-                  <th className="py-2 pr-4">Aktionen</th>
+                  <th className="py-2 pr-4">{t('admin.shopIcon')}</th>
+                  <th className="py-2 pr-4">{t('admin.tableName')}</th>
+                  <th className="py-2 pr-4">{t('admin.shopType')}</th>
+                  <th className="py-2 pr-4">{t('admin.shopPriceXp')}</th>
+                  <th className="py-2 pr-4">{t('admin.shopStatus')}</th>
+                  <th className="py-2 pr-4">{t('admin.shopPurchases')}</th>
+                  <th className="py-2 pr-4">{t('admin.tableActions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -785,9 +788,9 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                       <div className="text-xs text-gray-500">{item.description}</div>
                     </td>
                     <td className="py-3 pr-4 text-gray-600">
-                      {item.type === 'BADGE' && '🏅 Abzeichen'}
-                      {item.type === 'THEME' && '🎨 Theme'}
-                      {item.type === 'BOOSTER' && '⚡ Booster'}
+                      {item.type === 'BADGE' && `🏅 ${t('shop.types.BADGE')}`}
+                      {item.type === 'THEME' && `🎨 ${t('shop.types.THEME')}`}
+                      {item.type === 'BOOSTER' && `⚡ ${t('shop.types.BOOSTER')}`}
                     </td>
                     <td className="py-3 pr-4">
                       {editingPrice?.id === item.id ? (
@@ -810,7 +813,7 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                                   body: JSON.stringify({ price: editingPrice.price })
                                 });
                                 if (response.ok) {
-                                  setShopMessage('Preis aktualisiert');
+                                  setShopMessage(t('admin.shopPriceUpdated'));
                                   setEditingPrice(null);
                                   loadData();
                                   setTimeout(() => setShopMessage(null), 3000);
@@ -837,11 +840,11 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                     <td className="py-3 pr-4">
                       {item.isActive ? (
                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                          Aktiv
+                          {t('admin.shopActive')}
                         </span>
                       ) : (
                         <span className="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-700">
-                          Inaktiv
+                          {t('admin.shopInactive')}
                         </span>
                       )}
                     </td>
@@ -852,7 +855,7 @@ function AdminContent({ user }: { user: { id: string; isAdmin?: boolean } }) {
                         variant="secondary"
                         onClick={() => setEditingPrice({ id: item.id, price: item.price })}
                       >
-                        ✏️ Preis anpassen
+                        ✏️ {t('admin.shopAdjustPrice')}
                       </Button>
                     </td>
                   </tr>

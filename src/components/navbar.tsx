@@ -106,7 +106,7 @@ export function Navbar() {
                   {/* Premium badge – desktop only */}
                   {user.plan === 'PREMIUM' ? (
                     <span className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-2 py-0.5 rounded-full">
-                      ⭐ Premium
+                      ⭐ {t('navbar.premium')}
                     </span>
                   ) : (
                     <Link
@@ -145,7 +145,7 @@ export function Navbar() {
                           <p className="text-xs text-gray-500 truncate">{user.email}</p>
                           <p className="text-xs mt-1">
                             {user.plan === 'PREMIUM'
-                              ? <span className="text-yellow-600 font-semibold">⭐ Premium</span>
+                              ? <span className="text-yellow-600 font-semibold">⭐ {t('navbar.premium')}</span>
                               : <span className="text-gray-400">{t('navbar.free')}</span>
                             }
                           </p>

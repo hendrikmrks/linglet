@@ -128,9 +128,13 @@ function LeaderboardContent({ isPremium, userXp }: { isPremium: boolean; userXp:
               </p>
               {estimatedRank && (
                 <p className="text-sm text-gray-700 bg-indigo-50 rounded-lg px-4 py-3 mt-3">
-                  📊 Basierend auf deinen <span className="font-semibold">{estimatedRank.userXp} XP</span> wärst du aktuell auf ungefähr Platz{' '}
-                  <span className="font-semibold text-indigo-700">{estimatedRank.estimatedRank}</span> von{' '}
-                  <span className="font-semibold">{estimatedRank.totalUsers}</span> Lernenden.
+                  📊 {t('leaderboard.estimatedRankPrefix')}{' '}
+                  <span className="font-semibold">{estimatedRank.userXp} XP</span>{' '}
+                  {t('leaderboard.estimatedRankMiddle')}{' '}
+                  <span className="font-semibold text-indigo-700">{estimatedRank.estimatedRank}</span>{' '}
+                  {t('leaderboard.estimatedRankConnector')}{' '}
+                  <span className="font-semibold">{estimatedRank.totalUsers}</span>{' '}
+                  {t('leaderboard.estimatedRankSuffix')}
                 </p>
               )}
               <div className="mt-6">

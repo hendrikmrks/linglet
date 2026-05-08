@@ -30,8 +30,8 @@ export function useTranslation(language: Language | string | undefined = 'en') {
   return { t, language };
 }
 
-export const LANGUAGES: { code: Language; name: string }[] = [
-  { code: 'de', name: 'Deutsch' },
-  { code: 'en', name: 'English' },
-  { code: 'pt-br', name: 'Português (Brasil)' },
+export const LANGUAGES: { code: Language }[] = [
+  { code: 'de' },
+  { code: 'en' },
+  { code: 'pt-br' },
 ];

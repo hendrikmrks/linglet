@@ -82,9 +82,9 @@ export default function OnboardingPage() {
   };
 
   const languageOptions = [
-    { code: 'de', label: '🇩🇪 Deutsch', flag: '🇩🇪' },
-    { code: 'en', label: '🇬🇧 English', flag: '🇬🇧' },
-    { code: 'pt-br', label: '🇧🇷 Português', flag: '🇧🇷' },
+    { code: 'de', label: t('lesson.languages.de'), flag: '🇩🇪' },
+    { code: 'en', label: t('lesson.languages.en'), flag: '🇬🇧' },
+    { code: 'pt-br', label: t('lesson.languages.pt-br'), flag: '🇧🇷' },
   ];
 
   const availableLearning = languageOptions.filter(l => l.code !== nativeLanguage);
@@ -341,11 +341,11 @@ export default function OnboardingPage() {
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-left space-y-2">
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium text-gray-700">{t('onboarding.nativeLanguage')}:</span>
-              <span>{languageOptions.find(l => l.code === nativeLanguage)?.label}</span>
+              <span>{languageOptions.find(l => l.code === nativeLanguage)?.flag} {languageOptions.find(l => l.code === nativeLanguage)?.label}</span>
             </div>
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium text-gray-700">{t('onboarding.learningLanguageLabel')}:</span>
-              <span>{languageOptions.find(l => l.code === learningLanguage)?.label}</span>
+              <span>{languageOptions.find(l => l.code === learningLanguage)?.flag} {languageOptions.find(l => l.code === learningLanguage)?.label}</span>
             </div>
           </div>
 

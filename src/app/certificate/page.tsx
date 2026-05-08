@@ -199,19 +199,19 @@ function CertificateContent({ user }: { user: any }) {
               <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-yellow-200 shadow-2xl px-8 py-8 text-center max-w-sm w-full">
                 <div className="text-5xl mb-3">🏆</div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2">
-                  Dein Zertifikat wartet
+                  {t('certificate.previewTitle')}
                 </h2>
                 <p className="text-sm text-gray-600 mb-4 leading-relaxed">
-                  Schließe dein Sprachniveau ab und teile dein Zertifikat mit der Welt.
+                  {t('certificate.previewSubtitle')}
                 </p>
                 <Link
                   href="/settings/upgrade"
                   className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white font-semibold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity w-full justify-center"
                 >
-                  ⭐ Jetzt Premium werden
+                  ⭐ {t('leaderboard.premiumOnlyCta')}
                 </Link>
                 <p className="text-xs text-gray-400 mt-3">
-                  Du siehst eine Vorschau mit deinem echten Namen.
+                  {t('certificate.previewHint')}
                 </p>
               </div>
             </div>

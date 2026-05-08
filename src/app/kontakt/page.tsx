@@ -63,7 +63,7 @@ export default function KontaktPage() {
               type="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="you@example.com"
+              placeholder={t('contact.fieldEmailPlaceholder')}
               required
             />
             <div className="space-y-2">

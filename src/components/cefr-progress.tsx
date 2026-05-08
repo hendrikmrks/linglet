@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLanguage } from '@/lib/language-context';
+import { useTranslation } from '@/lib/use-translation';
 
 interface SubchapterData {
   id: string;
@@ -23,9 +25,9 @@ interface CefrLevelData {
 }
 
 const LEVEL_RANGES = [
-  { level: 'A1' as const, label: 'Anfänger', minOrder: 1, maxOrder: 6 },
-  { level: 'A2' as const, label: 'Grundkenntnisse', minOrder: 7, maxOrder: 10 },
-  { level: 'B1' as const, label: 'Fortgeschritten', minOrder: 11, maxOrder: 14 },
+  { level: 'A1' as const, labelKey: 'dashboard.cefrA1Label', minOrder: 1, maxOrder: 6 },
+  { level: 'A2' as const, labelKey: 'dashboard.cefrA2Label', minOrder: 7, maxOrder: 10 },
+  { level: 'B1' as const, labelKey: 'dashboard.cefrB1Label', minOrder: 11, maxOrder: 14 },
 ];
 
 const LEVEL_COLORS = {
@@ -55,8 +57,8 @@ const LEVEL_COLORS = {
   },
 };
 
-function computeLevelProgress(chapters: ChapterData[]): CefrLevelData[] {
-  return LEVEL_RANGES.map(({ level, label, minOrder, maxOrder }) => {
+function computeLevelProgress(chapters: ChapterData[], t: (key: string) => string): CefrLevelData[] {
+  return LEVEL_RANGES.map(({ level, labelKey, minOrder, maxOrder }) => {
     const levelChapters = chapters.filter(
       (c) => c.order >= minOrder && c.order <= maxOrder
     );
@@ -75,7 +77,7 @@ function computeLevelProgress(chapters: ChapterData[]): CefrLevelData[] {
         : 0;
     return {
       level,
-      label,
+      label: t(labelKey),
       totalSubchapters,
       completedSubchapters,
       percentage,
@@ -85,6 +87,8 @@ function computeLevelProgress(chapters: ChapterData[]): CefrLevelData[] {
 }
 
 export function CefrProgress() {
+  const { language } = useLanguage();
+  const { t } = useTranslation(language);
   const [levels, setLevels] = useState<CefrLevelData[]>([]);
   const [currentLevel, setCurrentLevel] = useState<string>('A1');
   const [loading, setLoading] = useState(true);
@@ -95,7 +99,7 @@ export function CefrProgress() {
       .then((data) => {
         if (!data.chapters) return;
 
-        const computed = computeLevelProgress(data.chapters);
+        const computed = computeLevelProgress(data.chapters, t);
 
         // Unlock logic: A1 always; A2 when A1 ≥ 50%; B1 when A2 ≥ 50%
         computed[0].isUnlocked = true;
@@ -117,7 +121,7 @@ export function CefrProgress() {
         // Silently fail – section simply won't appear
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [language]);
 
   if (loading) {
     return (
@@ -137,7 +141,7 @@ export function CefrProgress() {
   return (
     <div className="mb-8">
       <h2 className="text-base font-semibold text-gray-700 mb-3">
-        📊 Dein Lernfortschritt
+        📊 {t('dashboard.learningProgress')}
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -158,7 +162,7 @@ export function CefrProgress() {
                   <span className="text-lg">🔒</span>
                 </div>
                 <p className="text-xs font-medium text-gray-400 mb-1">{lvl.label}</p>
-                <p className="text-xs text-gray-400">gesperrt</p>
+                <p className="text-xs text-gray-400">{t('chapters.locked')}</p>
                 <div className="mt-3 h-1.5 bg-gray-200 rounded-full" />
               </div>
             );
@@ -179,7 +183,7 @@ export function CefrProgress() {
                 </div>
                 {isActive && (
                   <span className="text-xs font-semibold bg-white/70 border border-current rounded-full px-2 py-0.5 text-indigo-600">
-                    Aktuell
+                    {t('lesson.currentLevel')}
                   </span>
                 )}
                 {lvl.percentage === 100 && (
@@ -189,7 +193,7 @@ export function CefrProgress() {
 
               <p className={`text-xs font-semibold ${colors.text} mb-0.5`}>{lvl.label}</p>
               <p className={`text-xs ${colors.subtext} mb-3`}>
-                {lvl.completedSubchapters} von {lvl.totalSubchapters} Lektionen
+                {lvl.completedSubchapters} / {lvl.totalSubchapters} {t('dashboard.lessonsLabel')}
               </p>
 
               <div className="h-1.5 bg-white/60 rounded-full overflow-hidden">

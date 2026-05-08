@@ -15,7 +15,8 @@
     "submit": "Submit",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "close": "Close"
   },
   "auth": {
     "email": "Email",
@@ -49,7 +50,8 @@
     "loginFailed": "Login failed",
     "registerFailed": "Registration failed",
     "userExists": "User with this email already exists",
-    "errorOccurred": "An error occurred. Please try again."
+    "errorOccurred": "An error occurred. Please try again.",
+    "emailPlaceholder": "alex@example.com"
   },
   "dashboard": {
     "welcome": "Welcome",
@@ -65,7 +67,14 @@
     "upgrading": "Upgrade to Premium",
     "startLesson": "Start Lesson",
     "startLessonDescription": "Continue your next exercise and earn XP.",
-    "readyToLearn": "Ready to Learn?"
+    "readyToLearn": "Ready to Learn?",
+    "missedXpPrefix": "This week you could have earned",
+    "missedXpSuffix": "more XP. 🔒",
+    "learningProgress": "Your learning progress",
+    "lessonsLabel": "lessons",
+    "cefrA1Label": "Beginner",
+    "cefrA2Label": "Elementary",
+    "cefrB1Label": "Intermediate"
   },
   "profile": {
     "editProfile": "Edit Profile",
@@ -96,7 +105,8 @@
     "deleteConfirmMessage": "Are you sure you want to delete your account? This will remove all your data, progress, and premium requests.",
     "deleteIrreversible": "This action cannot be undone.",
     "deleteAccountConfirm": "Yes, Delete Account",
-    "deleteFailed": "Failed to delete account"
+    "deleteFailed": "Failed to delete account",
+    "avatarAlt": "Profile picture"
   },
   "settings": {
     "changePasswordTitle": "Change Password",
@@ -147,7 +157,11 @@
     "messagePlaceholder": "Tell us anything else we should know...",
     "requestSubmitted": "Premium request submitted! We'll contact you soon.",
     "requestPending": "You already have a pending premium request. Please wait for our response.",
-    "requestFailed": "Request failed"
+    "requestFailed": "Request failed",
+    "freePriceLabel": "Free",
+    "perMonth": "/month",
+    "paymentMethodsQuestion": "Which payment methods do you accept?",
+    "paymentMethodsAnswer": "We accept credit cards (Visa, Mastercard), PayPal, and bank transfers. We will share the payment details after your request has been approved."
   },
   "navbar": {
     "home": "Home",
@@ -243,7 +257,11 @@
     "premiumOnlyTitle": "For Premium members only",
     "premiumOnlySubtitle": "See how you compare to other learners. Upgrade to Premium and unlock the ranking!",
     "premiumOnlyCta": "Become Premium now",
-    "premiumOnlyNote": "Free users cannot view the ranking."
+    "premiumOnlyNote": "Free users cannot view the ranking.",
+    "estimatedRankPrefix": "Based on your",
+    "estimatedRankMiddle": "you would currently be around rank",
+    "estimatedRankConnector": "out of",
+    "estimatedRankSuffix": "learners."
   },
   "footer": {
     "imprint": "Imprint",
@@ -402,7 +420,8 @@
     "successTitle": "Message sent",
     "successSubtitle": "Thanks! We will get back to you soon.",
     "directTitle": "Contact",
-    "directBody": "Email: support@hendrik.tech"
+    "directBody": "Email: support@hendrik.tech",
+    "fieldEmailPlaceholder": "alex@example.com"
   },
   "path": {
     "title": "Learning Path",
@@ -420,50 +439,137 @@
     "requiredXp": "Required XP",
     "ch1": {
       "title": "Foundations",
-      "l1": { "title": "Basics 1", "theme": "Alphabet and sounds" },
-      "l2": { "title": "Basics 2", "theme": "Common phrases" },
-      "l3": { "title": "Numbers and time", "theme": "Counting, time, dates" },
-      "l4": { "title": "Introductions", "theme": "Greetings and small talk" },
-      "l5": { "title": "Colors and properties", "theme": "Colors and adjectives" },
-      "l6": { "title": "Days and months", "theme": "Calendar and dates" },
-      "l7": { "title": "Weather and seasons", "theme": "Describing weather" },
-      "l8": { "title": "In the classroom", "theme": "School supplies and learning" },
-      "test": { "title": "Chapter 1 Test", "theme": "Foundations review" }
+      "l1": {
+        "title": "Basics 1",
+        "theme": "Alphabet and sounds"
+      },
+      "l2": {
+        "title": "Basics 2",
+        "theme": "Common phrases"
+      },
+      "l3": {
+        "title": "Numbers and time",
+        "theme": "Counting, time, dates"
+      },
+      "l4": {
+        "title": "Introductions",
+        "theme": "Greetings and small talk"
+      },
+      "l5": {
+        "title": "Colors and properties",
+        "theme": "Colors and adjectives"
+      },
+      "l6": {
+        "title": "Days and months",
+        "theme": "Calendar and dates"
+      },
+      "l7": {
+        "title": "Weather and seasons",
+        "theme": "Describing weather"
+      },
+      "l8": {
+        "title": "In the classroom",
+        "theme": "School supplies and learning"
+      },
+      "test": {
+        "title": "Chapter 1 Test",
+        "theme": "Foundations review"
+      }
     },
     "ch2": {
       "title": "Everyday Life",
-      "l1": { "title": "Food and drink", "theme": "Ordering and preferences" },
-      "l2": { "title": "Family and friends", "theme": "People and relationships" },
-      "l3": { "title": "Home and routines", "theme": "Daily activities" },
-      "l4": { "title": "Shopping basics", "theme": "Stores and prices" }
+      "l1": {
+        "title": "Food and drink",
+        "theme": "Ordering and preferences"
+      },
+      "l2": {
+        "title": "Family and friends",
+        "theme": "People and relationships"
+      },
+      "l3": {
+        "title": "Home and routines",
+        "theme": "Daily activities"
+      },
+      "l4": {
+        "title": "Shopping basics",
+        "theme": "Stores and prices"
+      }
     },
     "ch3": {
       "title": "Travel",
-      "l1": { "title": "Directions", "theme": "Asking and giving directions" },
-      "l2": { "title": "Transportation", "theme": "Tickets and schedules" },
-      "l3": { "title": "Hotel and check-in", "theme": "Booking and services" },
-      "l4": { "title": "At the airport", "theme": "Security and boarding" }
+      "l1": {
+        "title": "Directions",
+        "theme": "Asking and giving directions"
+      },
+      "l2": {
+        "title": "Transportation",
+        "theme": "Tickets and schedules"
+      },
+      "l3": {
+        "title": "Hotel and check-in",
+        "theme": "Booking and services"
+      },
+      "l4": {
+        "title": "At the airport",
+        "theme": "Security and boarding"
+      }
     },
     "ch4": {
       "title": "Culture and Work",
-      "l1": { "title": "Shopping", "theme": "Sizes and prices" },
-      "l2": { "title": "Health", "theme": "Symptoms and pharmacy" },
-      "l3": { "title": "Work and study", "theme": "Office and school" },
-      "l4": { "title": "Work basics", "theme": "Jobs and schedules" }
+      "l1": {
+        "title": "Shopping",
+        "theme": "Sizes and prices"
+      },
+      "l2": {
+        "title": "Health",
+        "theme": "Symptoms and pharmacy"
+      },
+      "l3": {
+        "title": "Work and study",
+        "theme": "Office and school"
+      },
+      "l4": {
+        "title": "Work basics",
+        "theme": "Jobs and schedules"
+      }
     },
     "ch5": {
       "title": "City Life",
-      "l1": { "title": "Public services", "theme": "Post office and bank" },
-      "l2": { "title": "Appointments", "theme": "Scheduling and delays" },
-      "l3": { "title": "Housing", "theme": "Rent and utilities" },
-      "l4": { "title": "Neighborhood", "theme": "Around town" }
+      "l1": {
+        "title": "Public services",
+        "theme": "Post office and bank"
+      },
+      "l2": {
+        "title": "Appointments",
+        "theme": "Scheduling and delays"
+      },
+      "l3": {
+        "title": "Housing",
+        "theme": "Rent and utilities"
+      },
+      "l4": {
+        "title": "Neighborhood",
+        "theme": "Around town"
+      }
     },
     "ch6": {
       "title": "Conversation",
-      "l1": { "title": "Opinions", "theme": "Agreeing and disagreeing" },
-      "l2": { "title": "Stories", "theme": "Past events" },
-      "l3": { "title": "Plans", "theme": "Future and intentions" },
-      "l4": { "title": "Advice", "theme": "Suggestions and tips" }
+      "l1": {
+        "title": "Opinions",
+        "theme": "Agreeing and disagreeing"
+      },
+      "l2": {
+        "title": "Stories",
+        "theme": "Past events"
+      },
+      "l3": {
+        "title": "Plans",
+        "theme": "Future and intentions"
+      },
+      "l4": {
+        "title": "Advice",
+        "theme": "Suggestions and tips"
+      }
     }
   },
   "lesson": {
@@ -575,7 +681,48 @@
     "canSeeLeaderboardPremium": "Premium users can see leaderboard",
     "saveSettings": "Save settings",
     "settingsSaved": "Settings saved",
-    "settingsSaveFailed": "Failed to save settings"
+    "settingsSaveFailed": "Failed to save settings",
+    "reportsTitle": "Reports",
+    "noOpenReports": "No open reports.",
+    "reportedBy": "Reported by",
+    "issueType": "Type",
+    "issueWord": "Word",
+    "issueTranslation": "Translation",
+    "comment": "Comment",
+    "emptyValue": "-",
+    "resolve": "Resolved",
+    "shopTitle": "Shop management",
+    "shopSubtitle": "Adjust prices for offers",
+    "shopIcon": "Icon",
+    "shopType": "Type",
+    "shopPriceXp": "Price (XP)",
+    "shopStatus": "Status",
+    "shopPurchases": "Purchases",
+    "shopPriceUpdated": "Price updated",
+    "shopActive": "Active",
+    "shopInactive": "Inactive",
+    "shopAdjustPrice": "Adjust price",
+    "faqManagementTitle": "FAQ management",
+    "faqManagementSubtitle": "Manage the FAQ entries for the premium upgrade page.",
+    "faqTitle": "Premium FAQ",
+    "faqSortHint": "Entries are sorted by ascending order.",
+    "faqAdd": "Add FAQ",
+    "faqEdit": "Edit FAQ",
+    "faqEmpty": "No FAQ entries yet.",
+    "faqQuestion": "Question",
+    "faqQuestionPlaceholder": "e.g. How can I cancel Premium?",
+    "faqAnswer": "Answer",
+    "faqAnswerPlaceholder": "Answer shown in the premium FAQ",
+    "faqLanguage": "Language",
+    "faqOrder": "Order",
+    "faqModalHint": "Changes become visible on the upgrade page immediately.",
+    "faqLoadFailed": "Failed to load FAQs.",
+    "faqSaveFailed": "Failed to save FAQ.",
+    "faqDeleteFailed": "Failed to delete FAQ.",
+    "faqCreated": "FAQ created successfully.",
+    "faqUpdated": "FAQ updated successfully.",
+    "faqDeleted": "FAQ deleted successfully.",
+    "faqDeleteConfirm": "Delete this FAQ?"
   },
   "shop": {
     "title": "Shop",
@@ -645,7 +792,10 @@
     "print": "Print / Save as PDF",
     "back": "Back",
     "premiumOnly": "This feature is available for Premium users only.",
-    "loading": "Loading certificate..."
+    "loading": "Loading certificate...",
+    "previewTitle": "Your certificate is waiting",
+    "previewSubtitle": "Complete your language level and share your certificate with the world.",
+    "previewHint": "You are seeing a preview with your real name."
   },
   "onboarding": {
     "step": "Step",
@@ -701,7 +851,13 @@
     "noChapters": "No chapters available",
     "contentComingSoon": "Content for your learning language will be available soon",
     "start": "START →",
-    "test": "TEST →"
+    "test": "TEST →",
+    "prewallTitlePrefix": "Almost there! You are",
+    "prewallTitleSuffix": "through the free learning phase.",
+    "prewallBodyPrefix": "Chapter",
+    "prewallBodySuffix": "is waiting for you — unlock it now so your learning pace does not stop.",
+    "prewallCta": "Go Premium now",
+    "prewallLater": "Later"
   },
   "exercise": {
     "whatDoesThisMean": "What does this word mean?",

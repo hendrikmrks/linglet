@@ -235,7 +235,7 @@ function ProfileForm({ user }: { user: any }) {
                 {avatarPreview ? (
                   <img 
                     src={avatarPreview} 
-                    alt="Profile" 
+                    alt={t('profile.avatarAlt')} 
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -313,7 +313,7 @@ function ProfileForm({ user }: { user: any }) {
               {t('navbar.plan')}
             </label>
             <div className="px-4 py-2 bg-gray-100 rounded-lg text-gray-700 font-medium">
-              {user.plan === 'PREMIUM' ? '⭐ ' + t('navbar.premium') : t('navbar.free')}
+              {user.plan === 'PREMIUM' ? `⭐ ${t('navbar.premium')}` : t('navbar.free')}
             </div>
           </div>
 
@@ -377,7 +377,7 @@ function ProfileForm({ user }: { user: any }) {
           >
             {LANGUAGES.map((lang) => (
               <option key={lang.code} value={lang.code}>
-                {lang.name}
+                {t(`lesson.languages.${lang.code}`)}
               </option>
             ))}
           </select>

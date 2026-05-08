@@ -15,7 +15,8 @@
     "submit": "Enviar",
     "loading": "Carregando...",
     "error": "Erro",
-    "success": "Sucesso"
+    "success": "Sucesso",
+    "close": "Fechar"
   },
   "auth": {
     "email": "E-mail",
@@ -49,7 +50,8 @@
     "loginFailed": "Falha ao fazer login",
     "registerFailed": "Falha no registro",
     "userExists": "Usuário com este e-mail já existe",
-    "errorOccurred": "Ocorreu um erro. Tente novamente."
+    "errorOccurred": "Ocorreu um erro. Tente novamente.",
+    "emailPlaceholder": "alex@example.com"
   },
   "dashboard": {
     "welcome": "Bem-vindo",
@@ -65,7 +67,14 @@
     "upgrading": "Upgrade para Premium",
     "startLesson": "Iniciar lição",
     "startLessonDescription": "Continue e ganhe XP.",
-    "readyToLearn": "Pronto para aprender?"
+    "readyToLearn": "Pronto para aprender?",
+    "missedXpPrefix": "Nesta semana você poderia ter ganho",
+    "missedXpSuffix": "XP a mais. 🔒",
+    "learningProgress": "Seu progresso de aprendizado",
+    "lessonsLabel": "lições",
+    "cefrA1Label": "Iniciante",
+    "cefrA2Label": "Básico",
+    "cefrB1Label": "Intermediário"
   },
   "profile": {
     "editProfile": "Editar perfil",
@@ -96,7 +105,8 @@
     "deleteConfirmMessage": "Tem certeza de que deseja deletar sua conta? Isso removerá todos os seus dados, progresso e solicitações de premium.",
     "deleteIrreversible": "Esta ação não pode ser desfeita.",
     "deleteAccountConfirm": "Sim, Deletar Conta",
-    "deleteFailed": "Falha ao deletar a conta"
+    "deleteFailed": "Falha ao deletar a conta",
+    "avatarAlt": "Foto do perfil"
   },
   "settings": {
     "changePasswordTitle": "Alterar senha",
@@ -147,7 +157,11 @@
     "messagePlaceholder": "Diga-nos qualquer outra coisa que devemos saber...",
     "requestSubmitted": "Solicitação de Premium enviada! Entraremos em contato em breve.",
     "requestPending": "Você já tem uma solicitação de Premium pendente. Aguarde nossa resposta.",
-    "requestFailed": "Falha na solicitação"
+    "requestFailed": "Falha na solicitação",
+    "freePriceLabel": "Grátis",
+    "perMonth": "/mês",
+    "paymentMethodsQuestion": "Quais métodos de pagamento vocês aceitam?",
+    "paymentMethodsAnswer": "Aceitamos cartões de crédito (Visa, Mastercard), PayPal e transferências bancárias. Compartilharemos os detalhes de pagamento depois que a sua solicitação for aprovada."
   },
   "navbar": {
     "home": "Página inicial",
@@ -243,7 +257,11 @@
     "premiumOnlyTitle": "Apenas para membros Premium",
     "premiumOnlySubtitle": "Veja como voce se compara com outros alunos. Torne-se Premium e desbloqueie o ranking!",
     "premiumOnlyCta": "Torne-se Premium agora",
-    "premiumOnlyNote": "Usuarios Free nao podem ver o ranking."
+    "premiumOnlyNote": "Usuarios Free nao podem ver o ranking.",
+    "estimatedRankPrefix": "Com base nos seus",
+    "estimatedRankMiddle": "você estaria atualmente por volta da posição",
+    "estimatedRankConnector": "de",
+    "estimatedRankSuffix": "aprendizes."
   },
   "footer": {
     "imprint": "Impressão",
@@ -402,7 +420,8 @@
     "successTitle": "Mensagem enviada",
     "successSubtitle": "Obrigado! Vamos responder em breve.",
     "directTitle": "Contato",
-    "directBody": "Email: support@hendrik.tech"
+    "directBody": "Email: support@hendrik.tech",
+    "fieldEmailPlaceholder": "alex@example.com"
   },
   "path": {
     "title": "Trilha de Aprendizado",
@@ -420,50 +439,137 @@
     "requiredXp": "XP necessario",
     "ch1": {
       "title": "Fundamentos",
-      "l1": { "title": "Basico 1", "theme": "Alfabeto e sons" },
-      "l2": { "title": "Basico 2", "theme": "Frases comuns" },
-      "l3": { "title": "Numeros e tempo", "theme": "Contagem, horas, datas" },
-      "l4": { "title": "Apresentacoes", "theme": "Saudacoes e conversa" },
-      "l5": { "title": "Cores e propriedades", "theme": "Cores e adjetivos" },
-      "l6": { "title": "Dias e meses", "theme": "Calendario e datas" },
-      "l7": { "title": "Tempo e estacoes", "theme": "Descrevendo o tempo" },
-      "l8": { "title": "Na sala de aula", "theme": "Material escolar e aprender" },
-      "test": { "title": "Teste do Capitulo 1", "theme": "Revisao dos fundamentos" }
+      "l1": {
+        "title": "Basico 1",
+        "theme": "Alfabeto e sons"
+      },
+      "l2": {
+        "title": "Basico 2",
+        "theme": "Frases comuns"
+      },
+      "l3": {
+        "title": "Numeros e tempo",
+        "theme": "Contagem, horas, datas"
+      },
+      "l4": {
+        "title": "Apresentacoes",
+        "theme": "Saudacoes e conversa"
+      },
+      "l5": {
+        "title": "Cores e propriedades",
+        "theme": "Cores e adjetivos"
+      },
+      "l6": {
+        "title": "Dias e meses",
+        "theme": "Calendario e datas"
+      },
+      "l7": {
+        "title": "Tempo e estacoes",
+        "theme": "Descrevendo o tempo"
+      },
+      "l8": {
+        "title": "Na sala de aula",
+        "theme": "Material escolar e aprender"
+      },
+      "test": {
+        "title": "Teste do Capitulo 1",
+        "theme": "Revisao dos fundamentos"
+      }
     },
     "ch2": {
       "title": "Vida cotidiana",
-      "l1": { "title": "Comida e bebida", "theme": "Pedidos e preferencias" },
-      "l2": { "title": "Familia e amigos", "theme": "Pessoas e relacionamentos" },
-      "l3": { "title": "Casa e rotinas", "theme": "Atividades diarias" },
-      "l4": { "title": "Compras basicas", "theme": "Lojas e precos" }
+      "l1": {
+        "title": "Comida e bebida",
+        "theme": "Pedidos e preferencias"
+      },
+      "l2": {
+        "title": "Familia e amigos",
+        "theme": "Pessoas e relacionamentos"
+      },
+      "l3": {
+        "title": "Casa e rotinas",
+        "theme": "Atividades diarias"
+      },
+      "l4": {
+        "title": "Compras basicas",
+        "theme": "Lojas e precos"
+      }
     },
     "ch3": {
       "title": "Viagens",
-      "l1": { "title": "Direcoes", "theme": "Pedir e dar direcoes" },
-      "l2": { "title": "Transporte", "theme": "Bilhetes e horarios" },
-      "l3": { "title": "Hotel e check-in", "theme": "Reserva e servicos" },
-      "l4": { "title": "No aeroporto", "theme": "Seguranca e embarque" }
+      "l1": {
+        "title": "Direcoes",
+        "theme": "Pedir e dar direcoes"
+      },
+      "l2": {
+        "title": "Transporte",
+        "theme": "Bilhetes e horarios"
+      },
+      "l3": {
+        "title": "Hotel e check-in",
+        "theme": "Reserva e servicos"
+      },
+      "l4": {
+        "title": "No aeroporto",
+        "theme": "Seguranca e embarque"
+      }
     },
     "ch4": {
       "title": "Cultura e trabalho",
-      "l1": { "title": "Compras", "theme": "Tamanhos e precos" },
-      "l2": { "title": "Saude", "theme": "Sintomas e farmacia" },
-      "l3": { "title": "Trabalho e estudos", "theme": "Escritorio e escola" },
-      "l4": { "title": "Rotina de trabalho", "theme": "Empregos e horarios" }
+      "l1": {
+        "title": "Compras",
+        "theme": "Tamanhos e precos"
+      },
+      "l2": {
+        "title": "Saude",
+        "theme": "Sintomas e farmacia"
+      },
+      "l3": {
+        "title": "Trabalho e estudos",
+        "theme": "Escritorio e escola"
+      },
+      "l4": {
+        "title": "Rotina de trabalho",
+        "theme": "Empregos e horarios"
+      }
     },
     "ch5": {
       "title": "Vida na cidade",
-      "l1": { "title": "Servicos publicos", "theme": "Correio e banco" },
-      "l2": { "title": "Compromissos", "theme": "Agendar e atrasos" },
-      "l3": { "title": "Moradia", "theme": "Aluguel e contas" },
-      "l4": { "title": "Bairro", "theme": "Perto de voce" }
+      "l1": {
+        "title": "Servicos publicos",
+        "theme": "Correio e banco"
+      },
+      "l2": {
+        "title": "Compromissos",
+        "theme": "Agendar e atrasos"
+      },
+      "l3": {
+        "title": "Moradia",
+        "theme": "Aluguel e contas"
+      },
+      "l4": {
+        "title": "Bairro",
+        "theme": "Perto de voce"
+      }
     },
     "ch6": {
       "title": "Conversa",
-      "l1": { "title": "Opinioes", "theme": "Concordar e discordar" },
-      "l2": { "title": "Historias", "theme": "Eventos passados" },
-      "l3": { "title": "Planos", "theme": "Futuro e intencoes" },
-      "l4": { "title": "Conselhos", "theme": "Sugestoes e dicas" }
+      "l1": {
+        "title": "Opinioes",
+        "theme": "Concordar e discordar"
+      },
+      "l2": {
+        "title": "Historias",
+        "theme": "Eventos passados"
+      },
+      "l3": {
+        "title": "Planos",
+        "theme": "Futuro e intencoes"
+      },
+      "l4": {
+        "title": "Conselhos",
+        "theme": "Sugestoes e dicas"
+      }
     }
   },
   "lesson": {
@@ -575,7 +681,48 @@
     "canSeeLeaderboardPremium": "Usuários premium podem ver o ranking",
     "saveSettings": "Salvar configurações",
     "settingsSaved": "Configurações salvas",
-    "settingsSaveFailed": "Falha ao salvar configurações"
+    "settingsSaveFailed": "Falha ao salvar configurações",
+    "reportsTitle": "Reclamações",
+    "noOpenReports": "Nenhuma reclamação em aberto.",
+    "reportedBy": "Reportado por",
+    "issueType": "Tipo",
+    "issueWord": "Vocábulo",
+    "issueTranslation": "Tradução",
+    "comment": "Comentário",
+    "emptyValue": "-",
+    "resolve": "Resolvido",
+    "shopTitle": "Gestão da loja",
+    "shopSubtitle": "Ajuste os preços das ofertas",
+    "shopIcon": "Ícone",
+    "shopType": "Tipo",
+    "shopPriceXp": "Preço (XP)",
+    "shopStatus": "Status",
+    "shopPurchases": "Compras",
+    "shopPriceUpdated": "Preço atualizado",
+    "shopActive": "Ativo",
+    "shopInactive": "Inativo",
+    "shopAdjustPrice": "Ajustar preço",
+    "faqManagementTitle": "Gestão de FAQ",
+    "faqManagementSubtitle": "Gerencie as entradas de FAQ da página de upgrade premium.",
+    "faqTitle": "FAQ Premium",
+    "faqSortHint": "A ordenação é feita em ordem crescente.",
+    "faqAdd": "Adicionar FAQ",
+    "faqEdit": "Editar FAQ",
+    "faqEmpty": "Ainda não há entradas de FAQ.",
+    "faqQuestion": "Pergunta",
+    "faqQuestionPlaceholder": "ex.: Como posso cancelar o Premium?",
+    "faqAnswer": "Resposta",
+    "faqAnswerPlaceholder": "Resposta exibida no FAQ premium",
+    "faqLanguage": "Idioma",
+    "faqOrder": "Ordem",
+    "faqModalHint": "As mudanças ficam visíveis na página de upgrade imediatamente.",
+    "faqLoadFailed": "Falha ao carregar FAQs.",
+    "faqSaveFailed": "Falha ao salvar FAQ.",
+    "faqDeleteFailed": "Falha ao excluir FAQ.",
+    "faqCreated": "FAQ criado com sucesso.",
+    "faqUpdated": "FAQ atualizado com sucesso.",
+    "faqDeleted": "FAQ excluído com sucesso.",
+    "faqDeleteConfirm": "Excluir este FAQ?"
   },
   "shop": {
     "title": "Loja",
@@ -645,7 +792,10 @@
     "print": "Imprimir / Salvar como PDF",
     "back": "Voltar",
     "premiumOnly": "Este recurso está disponível apenas para usuários Premium.",
-    "loading": "Carregando certificado..."
+    "loading": "Carregando certificado...",
+    "previewTitle": "Seu certificado está esperando",
+    "previewSubtitle": "Conclua seu nível de idioma e compartilhe seu certificado com o mundo.",
+    "previewHint": "Você está vendo uma prévia com o seu nome real."
   },
   "onboarding": {
     "step": "Passo",
@@ -701,7 +851,13 @@
     "noChapters": "Nenhum capítulo disponível",
     "contentComingSoon": "O conteúdo para o seu idioma de aprendizado estará disponível em breve",
     "start": "INICIAR →",
-    "test": "TESTE →"
+    "test": "TESTE →",
+    "prewallTitlePrefix": "Quase lá! Você já passou por",
+    "prewallTitleSuffix": "da fase gratuita de aprendizado.",
+    "prewallBodyPrefix": "O capítulo",
+    "prewallBodySuffix": "está esperando por você — desbloqueie agora para que o seu ritmo de estudo não pare.",
+    "prewallCta": "Virar Premium agora",
+    "prewallLater": "Depois"
   },
   "exercise": {
     "whatDoesThisMean": "O que significa esta palavra?",
