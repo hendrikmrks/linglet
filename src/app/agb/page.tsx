@@ -6,7 +6,7 @@ export default function AgbPage() {
         <h1 className="mt-3 text-4xl font-display font-semibold text-gray-900">
           Allgemeine Geschäftsbedingungen
         </h1>
-        <p className="mt-2 text-gray-600">Stand: Mai 2025</p>
+        <p className="mt-2 text-gray-600">Stand: Mai 2026</p>
       </header>
 
       <div className="space-y-6">
@@ -45,8 +45,12 @@ export default function AgbPage() {
 
           <h3 className="font-semibold text-gray-800 mt-4 mb-2">Premium-Plan</h3>
           <p className="text-gray-600 leading-relaxed mb-3">
-            Der Premium-Zugang hebt alle Limits auf und gibt Zugang zu sämtlichen Inhalten der Plattform. Der
-            jeweils aktuelle Preis wird auf der Upgrade-Seite angezeigt.
+            Der Premium-Zugang hebt alle Limits auf und gibt Zugang zu sämtlichen Inhalten der Plattform.
+            Premium-Zugang wird derzeit ausschließlich auf individuelle Anfrage gewährt und setzt die ausdrückliche
+            Freigabe durch den Betreiber voraus.
+          </p>
+          <p className="text-gray-600 leading-relaxed mb-3">
+            Bis auf Weiteres werden genehmigte Premium-Zugänge unentgeltlich bereitgestellt.
           </p>
 
           <p className="text-gray-600 leading-relaxed">
@@ -58,35 +62,39 @@ export default function AgbPage() {
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">§ 4 Zahlung und Kündigung (Premium)</h2>
           <p className="text-gray-600 leading-relaxed mb-3">
-            Premium-Abonnements werden monatlich oder jährlich im Voraus abgerechnet.
+            Premium-Zugang wird ausschließlich auf individuelle Anfrage und nach Freigabe durch den Betreiber
+            gewährt.
           </p>
           <p className="text-gray-600 leading-relaxed mb-3">
-            Die Kündigung ist jederzeit zum Ende der bereits bezahlten Periode möglich. Nach der Kündigung läuft
-            der Premium-Zugang bis zum Ende des bezahlten Zeitraums weiter.
+            Bis auf Weiteres werden genehmigte Premium-Zugänge unentgeltlich bereitgestellt.
+          </p>
+          <p className="text-gray-600 leading-relaxed mb-3">
+            Der Betreiber behält sich vor, einen Premium-Zugang jederzeit ohne Angabe von Gründen zu widerrufen
+            oder zu beenden.
           </p>
           <p className="text-gray-600 leading-relaxed">
-            Rückerstattungen sind innerhalb von 14 Tagen nach Ersterwerb möglich (gesetzliches Widerrufsrecht,
-            §§ 355 ff. BGB), sofern kein Ausschlussgrund nach § 356 Abs. 5 BGB vorliegt.
+            Sollte künftig ein entgeltliches Premium-Modell eingeführt werden, werden bestehende Premium-Nutzer
+            hierüber mindestens 30 Tage im Voraus informiert und erhalten die Möglichkeit, ihren Premium-Zugang
+            vor Inkrafttreten der Änderung zu beenden.
           </p>
         </div>
 
         <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">§ 5 Widerrufsrecht</h2>
           <p className="text-gray-600 leading-relaxed mb-3">
-            Du hast das Recht, binnen 14 Tagen ohne Angabe von Gründen von einem Vertrag über digitale Inhalte
-            zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag des Vertragsschlusses.
+            Ein gesetzliches Widerrufsrecht für entgeltliche digitale Leistungen ist derzeit nicht einschlägig, da
+            genehmigte Premium-Zugänge bis auf Weiteres unentgeltlich bereitgestellt werden.
           </p>
           <p className="text-gray-600 leading-relaxed mb-3">
-            Um dein Widerrufsrecht auszuüben, teile uns deine Entscheidung per E-Mail an{' '}
+            Sollte künftig ein kostenpflichtiges Angebot eingeführt werden, werden Nutzer vor Vertragsschluss
+            gesondert über ein etwaig bestehendes Widerrufsrecht sowie dessen Voraussetzungen informiert.
+          </p>
+          <p className="text-gray-600 leading-relaxed">
+            Unabhängig davon kannst du Fragen zu deinem Premium-Zugang jederzeit per E-Mail an{' '}
             <a href="mailto:support@hendrik.tech" className="text-indigo-600 hover:underline">
               support@hendrik.tech
             </a>{' '}
-            mit.
-          </p>
-          <p className="text-gray-600 leading-relaxed">
-            Das Widerrufsrecht erlischt bei Verträgen über die Lieferung von digitalen Inhalten vorzeitig, wenn
-            du ausdrücklich zugestimmt hast, dass wir mit der Ausführung des Vertrags vor Ablauf der
-            Widerrufsfrist beginnen, und du zur Kenntnis genommen hast, dass du dein Widerrufsrecht damit verlierst.
+            richten.
           </p>
         </div>
 
