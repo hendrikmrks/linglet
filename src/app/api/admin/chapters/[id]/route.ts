@@ -1,0 +1,106 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/db';
+import { cookies } from 'next/headers';
+
+async function getAuthUser() {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get('sessionToken')?.value;
+  
+  if (!sessionToken) {
+    return null;
+  }
+
+  const session = await prisma.session.findUnique({
+    where: { sessionToken },
+    include: { user: true },
+  });
+
+  if (!session || session.expiresAt < new Date()) {
+    return null;
+  }
+
+  return session.user;
+}
+
+// PATCH update chapter
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getAuthUser();
+    
+    if (!user || !(user as any).isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+    const { title, description, order, language, sourceLanguage, targetLanguage, isFeatured, isLocked, unlocksAt } = body;
+
+    const updateData: any = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (order !== undefined) updateData.order = order;
+    if (language !== undefined) updateData.language = language;
+    if (sourceLanguage !== undefined) updateData.sourceLanguage = sourceLanguage;
+    if (targetLanguage !== undefined) updateData.targetLanguage = targetLanguage;
+    if (isFeatured !== undefined) updateData.isFeatured = isFeatured;
+    if (isLocked !== undefined) updateData.isLocked = isLocked;
+    if (unlocksAt !== undefined) updateData.unlocksAt = unlocksAt;
+
+    const chapter = await prisma.chapter.update({
+      where: { id },
+      data: updateData,
+      include: {
+        subchapters: {
+          orderBy: { order: 'asc' },
+        },
+      },
+    });
+
+    return NextResponse.json({ chapter });
+  } catch (error: any) {
+    console.error('Failed to update chapter:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+    }
+    
+    if (error.code === 'P2002') {
+      return NextResponse.json({ error: 'A chapter with this order already exists for this language' }, { status: 409 });
+    }
+    
+    return NextResponse.json({ error: 'Failed to update chapter' }, { status: 500 });
+  }
+}
+
+// DELETE chapter
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getAuthUser();
+    
+    if (!user || !(user as any).isAdmin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const { id } = await params;
+
+    await prisma.chapter.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error('Failed to delete chapter:', error);
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({ error: 'Chapter not found' }, { status: 404 });
+    }
+    
+    return NextResponse.json({ error: 'Failed to delete chapter' }, { status: 500 });
+  }
+}
