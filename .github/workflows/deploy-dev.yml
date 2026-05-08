@@ -31,33 +31,28 @@ jobs:
             echo "==> Pulling latest code"
             git pull origin dev
 
-            echo "==> Ensuring linglet_dev accessible via 127.0.0.1"
+            echo "==> Ensuring linglet_dev DB credentials are correct"
             PG_VER=$(ls /etc/postgresql/ 2>/dev/null | sort -V | tail -1)
-            echo "PostgreSQL version detected: $PG_VER"
             if [ -n "$PG_VER" ]; then
               PG_HBA="/etc/postgresql/$PG_VER/main/pg_hba.conf"
-              echo "pg_hba.conf path: $PG_HBA"
-              echo "Current linglet entries in pg_hba.conf:"
-              grep -n "linglet" "$PG_HBA" 2>/dev/null || echo "(none found)"
-              # Always append rule (duplicate is harmless, first match wins)
-              echo "host    linglet_dev     linglet         127.0.0.1/32            scram-sha-256" >> "$PG_HBA"
-              echo "Reloading PostgreSQL..."
-              pg_ctlcluster $PG_VER main reload 2>&1 && echo "Reloaded via pg_ctlcluster" || \
-                systemctl reload postgresql 2>&1 && echo "Reloaded via systemctl" || \
-                echo "WARNING: Could not reload PostgreSQL"
-            else
-              echo "WARNING: Could not detect PostgreSQL installation"
-              ls /etc/postgresql/ 2>&1 || true
+              if ! grep -q "linglet_dev.*127.0.0.1" "$PG_HBA"; then
+                echo "host    linglet_dev     linglet         127.0.0.1/32            scram-sha-256" >> "$PG_HBA"
+                pg_ctlcluster $PG_VER main reload 2>&1 || true
+              fi
             fi
-            DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | sed 's/host\.docker\.internal/127.0.0.1/')
-            echo "DB host: $(echo "$DB_URL" | grep -oP '(?<=@)[^:/]+')"
-            echo "DB name: $(echo "$DB_URL" | grep -oP '[^/]+$')"
-
-            echo "==> Testing DB connection directly (psql from host)"
-            PG_PASS=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(urllib.parse.unquote(url.password or ''))")
-            PG_USER=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(url.username or '')")
-            PG_DB=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(url.path.lstrip('/'))")
-            PGPASSWORD="$PG_PASS" psql -h 127.0.0.1 -U "$PG_USER" -d "$PG_DB" -c "SELECT 1;" 2>&1 && echo "Direct psql OK" || echo "Direct psql FAILED (P1000 expected source)"
+            # Dev .env may have wrong credentials; use prod credentials with dev database
+            PROD_DB_URL=$(grep ^DATABASE_URL /opt/linglet/prod/.env | cut -d= -f2-)
+            DEV_DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2-)
+            DB_URL=$(python3 -c "
+import urllib.parse
+prod = urllib.parse.urlparse('$PROD_DB_URL')
+dev = urllib.parse.urlparse('$DEV_DB_URL'.replace('host.docker.internal', '127.0.0.1'))
+netloc = '{}:{}@{}:{}'.format(prod.username, prod.password, dev.hostname, dev.port or 5432)
+fixed = dev._replace(netloc=netloc)
+print(urllib.parse.urlunparse(fixed))
+")
+            echo "DB host: $(echo "$DB_URL" | python3 -c "import sys,urllib.parse; print(urllib.parse.urlparse(sys.stdin.read().strip()).hostname)")"
+            echo "DB name: $(echo "$DB_URL" | python3 -c "import sys,urllib.parse; print(urllib.parse.urlparse(sys.stdin.read().strip()).path[1:])")"
 
             echo "==> Building image"
             docker compose -f docker-compose.dev.yml build --no-cache
