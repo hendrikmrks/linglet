@@ -17,10 +17,13 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
         with:
           host: linglet.de
           username: root
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          envs: ADMIN_PASSWORD
           script: |
             set -e
             cd /opt/linglet/dev
@@ -41,6 +44,7 @@ jobs:
             docker run --rm --network host \
               --env-file .env \
               -e DATABASE_URL="$DB_URL" \
+              -e ADMIN_PASSWORD="$ADMIN_PASSWORD" \
               linglet-dev node scripts/seed-runner.js --env dev
 
             echo "==> Starting container"
