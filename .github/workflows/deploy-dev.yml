@@ -32,18 +32,13 @@ jobs:
             docker compose -f docker-compose.dev.yml build --no-cache
 
             echo "==> Running migrations"
-            docker run --rm \
-              --env-file .env \
-              --add-host host.docker.internal:host-gateway \
-              linglet-dev \
-              prisma migrate deploy
+            docker compose -f docker-compose.dev.yml run --rm \
+              -e DATABASE_URL="$(grep DATABASE_URL .env | cut -d= -f2-)" \
+              app prisma migrate deploy
 
             echo "==> Running seeds (dev - fresh each deploy)"
-            docker run --rm \
-              --env-file .env \
-              --add-host host.docker.internal:host-gateway \
-              linglet-dev \
-              node scripts/seed-runner.js --env dev
+            docker compose -f docker-compose.dev.yml run --rm \
+              app node scripts/seed-runner.js --env dev
 
             echo "==> Starting container"
             docker compose -f docker-compose.dev.yml up -d
