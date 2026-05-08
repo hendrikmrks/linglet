@@ -50,7 +50,14 @@ jobs:
               ls /etc/postgresql/ 2>&1 || true
             fi
             DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | sed 's/host\.docker\.internal/127.0.0.1/')
-            echo "DB_URL host: $(echo $DB_URL | grep -oP '(?<=@)[^:]+' | head -1)"
+            echo "DB host: $(echo "$DB_URL" | grep -oP '(?<=@)[^:/]+')"
+            echo "DB name: $(echo "$DB_URL" | grep -oP '[^/]+$')"
+
+            echo "==> Testing DB connection directly (psql from host)"
+            PG_PASS=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(urllib.parse.unquote(url.password or ''))")
+            PG_USER=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(url.username or '')")
+            PG_DB=$(python3 -c "import sys,urllib.parse; url=urllib.parse.urlparse('$DB_URL'); print(url.path.lstrip('/'))")
+            PGPASSWORD="$PG_PASS" psql -h 127.0.0.1 -U "$PG_USER" -d "$PG_DB" -c "SELECT 1;" 2>&1 && echo "Direct psql OK" || echo "Direct psql FAILED (P1000 expected source)"
 
             echo "==> Building image"
             docker compose -f docker-compose.dev.yml build --no-cache
