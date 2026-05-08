@@ -1,22 +1,17 @@
-# Stage 1: Install dependencies
+# Stage 1: Production dependencies only (fast, cached)
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
-
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev --ignore-scripts
+RUN npm install --omit=dev --ignore-scripts
 
-# Stage 2: Build the application (needs devDeps for prisma generate + next build)
+# Stage 2: Full install + build (needs devDeps for prisma generate & next build)
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
-
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
-
+RUN npm install --ignore-scripts
 COPY . .
-
-# Generate Prisma client and build Next.js
 RUN npx prisma generate
 RUN npm run build
 
