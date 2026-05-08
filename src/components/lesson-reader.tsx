@@ -43,6 +43,8 @@ interface Chapter {
   subchapters: Subchapter[];
 }
 
+const MAX_HEARTS = 5;
+
 // ────────────────────────────────────────────
 // Confetti animation component
 // ────────────────────────────────────────────
@@ -111,7 +113,7 @@ function SummaryScreen({ summary, xpReward, title, isChapterTest, passed, isPrem
   const seconds = Math.floor((summary.durationMs % 60000) / 1000);
   const timeStr = minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 
-  const success = summary.heartsRemaining > 0;
+  const success = isChapterTest ? Boolean(passed) : summary.heartsRemaining > 0;
 
   useEffect(() => {
     if (success) {
@@ -183,7 +185,7 @@ function SummaryScreen({ summary, xpReward, title, isChapterTest, passed, isPrem
 
         {/* Hearts remaining */}
         <div className="flex justify-center gap-1 mt-4 mb-6">
-          {Array.from({ length: 5 }).map((_, i) => (
+          {Array.from({ length: MAX_HEARTS }).map((_, i) => (
             <span key={i} className={`text-2xl transition-all ${i < summary.heartsRemaining ? 'text-red-500 scale-100' : 'text-gray-300 scale-75'}`}>
               ♥
             </span>
@@ -212,6 +214,64 @@ function SummaryScreen({ summary, xpReward, title, isChapterTest, passed, isPrem
   );
 }
 
+interface GameOverScreenProps {
+  title: string;
+  onRetry: () => void;
+  onBackToOverview: () => void;
+}
+
+function GameOverScreen({ title, onRetry, onBackToOverview }: GameOverScreenProps) {
+  const { language } = useLanguage();
+  const { t } = useTranslation(language);
+  const copy = {
+    de: {
+      label: 'Game Over',
+      description: 'Du hast alle Herzen verloren. Diese Lektion zählt nicht als abgeschlossen.',
+      noProgress: 'Kein XP, kein Streak, kein Fortschritt',
+      back: 'Zur Übersicht',
+    },
+    en: {
+      label: 'Game Over',
+      description: 'You lost all hearts. This lesson does not count as completed.',
+      noProgress: 'No XP, no streak, no progress',
+      back: 'Back to overview',
+    },
+    'pt-br': {
+      label: 'Fim de jogo',
+      description: 'Você perdeu todos os corações. Esta lição não conta como concluída.',
+      noProgress: 'Sem XP, sem streak, sem progresso',
+      back: 'Voltar à visão geral',
+    },
+  }[language] ?? {
+    label: 'Game Over',
+    description: 'You lost all hearts. This lesson does not count as completed.',
+    noProgress: 'No XP, no streak, no progress',
+    back: 'Back to overview',
+  };
+
+  return (
+    <div className="mx-auto max-w-lg rounded-3xl border border-red-200 bg-red-50 p-8 text-center shadow-sm">
+      <div className="mb-4 text-6xl">💔</div>
+      <p className="mb-2 text-sm font-bold uppercase tracking-[0.2em] text-red-500">{copy.label}</p>
+      <h2 className="mb-2 text-3xl font-black text-gray-900">{title}</h2>
+      <p className="mb-6 text-base text-gray-700">{copy.description}</p>
+
+      <div className="mb-8 inline-flex rounded-full border border-red-200 bg-white px-4 py-2 text-sm font-semibold text-red-600">
+        {copy.noProgress}
+      </div>
+
+      <div className="flex flex-col justify-center gap-3 sm:flex-row">
+        <Button onClick={onRetry} size="lg">
+          🔄 {t('lessonReader.retryTest')}
+        </Button>
+        <Button variant="secondary" onClick={onBackToOverview} size="lg">
+          ← {copy.back}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ────────────────────────────────────────────
 // Lesson Reader (main component)
 // ────────────────────────────────────────────
@@ -229,7 +289,7 @@ export function LessonReader() {
   const [isLocked, setIsLocked] = useState(false);
 
   const [activeSubchapterId, setActiveSubchapterId] = useState<string | null>(null);
-  const [hearts, setHearts] = useState(5);
+  const [hearts, setHearts] = useState(MAX_HEARTS);
   const [exercises, setExercises] = useState<GeneratedExercise[]>([]);
   const [exerciseKey, setExerciseKey] = useState(0);
 
@@ -251,7 +311,7 @@ export function LessonReader() {
   }, [chapter, activeSubchapterId]);
 
   const resetSession = useCallback(() => {
-    setHearts(5);
+    setHearts(MAX_HEARTS);
     setShowSummary(false);
     setLastSummary(null);
     setLastXpReward(0);
@@ -335,13 +395,14 @@ export function LessonReader() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [chapterId, preselectedSubchapterId]);
 
-  const completeActiveSubchapter = async (score: number, maxScore: number) => {
-    if (!activeSubchapter && !isTestMode) return;
+  const completeActiveSubchapter = async (score: number, maxScore: number, livesRemaining: number) => {
+    if (!activeSubchapter && !isTestMode) {
+      return { success: false };
+    }
 
     try {
       if (isTestMode) {
-        // For chapter test, just track locally – no server call needed for test
-        return;
+        return { success: livesRemaining > 0 };
       }
 
       const response = await fetch('/api/subchapters/complete', {
@@ -352,20 +413,30 @@ export function LessonReader() {
           subchapterId: activeSubchapter!.id,
           score,
           maxScore,
+          livesRemaining,
+          failed: livesRemaining <= 0,
         }),
       });
 
       if (!response.ok) {
         setLastXpReward(0);
-        return;
+        return { success: false };
       }
 
       const result = await response.json();
+
+      if (!result.success) {
+        setLastXpReward(0);
+        return { success: false, reason: result.reason as string | undefined };
+      }
+
       setLastXpReward(result.xpReward || 0);
       await refreshUser();
       await loadChapter();
+      return { success: true };
     } catch {
       setLastXpReward(0);
+      return { success: false };
     }
   };
 
@@ -379,16 +450,13 @@ export function LessonReader() {
       setShowSummary(true);
 
       if (isTestMode) {
-        // Chapter test: need >= 80% correct on first try to pass
         const passed = summary.totalExercises > 0 &&
           (summary.correctFirst / summary.totalExercises) >= 0.8 &&
           summary.heartsRemaining > 0;
         setTestPassed(passed);
-        if (passed) {
-          setLastXpReward(50); // Bonus XP for passing
-        }
+        setLastXpReward(passed ? 50 : 0);
       } else {
-        await completeActiveSubchapter(score, total);
+        await completeActiveSubchapter(score, total, summary.heartsRemaining);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -465,23 +533,31 @@ export function LessonReader() {
               </div>
             </div>
             <div className="flex items-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
+              {Array.from({ length: MAX_HEARTS }).map((_, i) => (
                 <span key={i} className={`text-lg ${i < hearts ? 'text-red-500' : 'text-gray-300'}`}>♥</span>
               ))}
             </div>
           </div>
 
           {showSummary && lastSummary ? (
-            <SummaryScreen
-              summary={lastSummary}
-              xpReward={lastXpReward}
-              title={t('lessonReader.chapterTest')}
-              isChapterTest
-              passed={testPassed}
-              isPremium={user?.plan === 'PREMIUM'}
-              onRetry={resetSession}
-              onContinue={handleContinue}
-            />
+            lastSummary.heartsRemaining === 0 ? (
+              <GameOverScreen
+                title={t('lessonReader.chapterTest')}
+                onRetry={resetSession}
+                onBackToOverview={() => router.push('/path')}
+              />
+            ) : (
+              <SummaryScreen
+                summary={lastSummary}
+                xpReward={lastXpReward}
+                title={t('lessonReader.chapterTest')}
+                isChapterTest
+                passed={testPassed}
+                isPremium={user?.plan === 'PREMIUM'}
+                onRetry={resetSession}
+                onContinue={handleContinue}
+              />
+            )
           ) : exercises.length > 0 ? (
             <ExerciseRunner
               key={exerciseKey}
@@ -577,7 +653,7 @@ export function LessonReader() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-900">{activeSubchapter.title}</h2>
               <div className="flex items-center gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
+                {Array.from({ length: MAX_HEARTS }).map((_, i) => (
                   <span key={i} className={`text-lg transition-all ${i < hearts ? 'text-red-500' : 'text-gray-300'}`}>♥</span>
                 ))}
               </div>
@@ -585,14 +661,22 @@ export function LessonReader() {
 
             {/* Summary or exercises */}
             {showSummary && lastSummary ? (
-              <SummaryScreen
-                summary={lastSummary}
-                xpReward={lastXpReward}
-                title={activeSubchapter.title}
-                isPremium={user?.plan === 'PREMIUM'}
-                onRetry={resetSession}
-                onContinue={handleContinue}
-              />
+              lastSummary.heartsRemaining === 0 ? (
+                <GameOverScreen
+                  title={activeSubchapter.title}
+                  onRetry={resetSession}
+                  onBackToOverview={() => router.push('/path')}
+                />
+              ) : (
+                <SummaryScreen
+                  summary={lastSummary}
+                  xpReward={lastXpReward}
+                  title={activeSubchapter.title}
+                  isPremium={user?.plan === 'PREMIUM'}
+                  onRetry={resetSession}
+                  onContinue={handleContinue}
+                />
+              )
             ) : (
               <ExerciseRunner
                 key={exerciseKey}

@@ -138,4 +138,14 @@ describe('POST /api/lesson/complete – Streak-Logik', () => {
     expect(typeof body.xpReward).toBe('number');
     expect(body.xpReward).toBeGreaterThan(0);
   });
+
+  it('vergibt bei fehlenden Leben keinen Abschluss, kein XP und keinen Streak', async () => {
+    const res = await POST(makeRequest({ levelId: 'level1', score: 8, maxScore: 10, livesRemaining: 0 }) as any);
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body).toEqual({ success: false, reason: 'no_lives_remaining' });
+    expect(mockUpdateStreak).not.toHaveBeenCalled();
+    expect(mockDbQuery).not.toHaveBeenCalled();
+  });
 });

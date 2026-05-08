@@ -10,6 +10,14 @@ const MAX_XP_REWARD = 30;
 
 type SubchapterStatus = 'LOCKED' | 'CURRENT' | 'COMPLETED';
 
+function parseFailureState(body: any) {
+  const hasLivesRemaining = body?.livesRemaining !== undefined && body?.livesRemaining !== null;
+  const livesRemaining = hasLivesRemaining ? Math.max(0, Math.trunc(Number(body.livesRemaining))) : null;
+  const failed = body?.failed === true || (livesRemaining !== null && Number.isFinite(livesRemaining) && livesRemaining <= 0);
+
+  return { failed };
+}
+
 async function ensureProgressTable() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS "UserSubchapterProgress" (
@@ -72,6 +80,7 @@ export async function POST(request: NextRequest) {
     const subchapterId = body?.subchapterId as string | undefined;
     const score = Math.max(0, Number(body?.score || 0));
     const maxScore = Math.max(0, Number(body?.maxScore || 0));
+    const { failed } = parseFailureState(body);
 
     if (!subchapterId) {
       return NextResponse.json({ error: 'Missing subchapterId' }, { status: 400 });
@@ -80,8 +89,6 @@ export async function POST(request: NextRequest) {
     if (maxScore > 0 && score > maxScore) {
       return NextResponse.json({ error: 'Invalid score: score cannot exceed maxScore' }, { status: 400 });
     }
-
-    await ensureProgressTable();
 
     const subchapterResult = await db.query(
       `SELECT s.id, s."chapterId", s."order", s."isLocked", s."unlocksAt"
@@ -93,6 +100,12 @@ export async function POST(request: NextRequest) {
     if (subchapterResult.rows.length === 0) {
       return NextResponse.json({ error: 'Subchapter not found' }, { status: 404 });
     }
+
+    if (failed) {
+      return NextResponse.json({ success: false, reason: 'no_lives_remaining' }, { status: 200 });
+    }
+
+    await ensureProgressTable();
 
     const userId = session.user.id;
     const chapterId = subchapterResult.rows[0].chapterId as string;

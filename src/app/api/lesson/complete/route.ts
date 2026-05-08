@@ -8,6 +8,14 @@ import { updateStreak } from '@/lib/streak';
 const MIN_XP_REWARD = 5;
 const MAX_XP_REWARD = 30;
 
+function parseFailureState(body: any) {
+  const hasLivesRemaining = body?.livesRemaining !== undefined && body?.livesRemaining !== null;
+  const livesRemaining = hasLivesRemaining ? Math.max(0, Math.trunc(Number(body.livesRemaining))) : null;
+  const failed = body?.failed === true || (livesRemaining !== null && Number.isFinite(livesRemaining) && livesRemaining <= 0);
+
+  return { failed };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession(request);
@@ -20,6 +28,7 @@ export async function POST(request: NextRequest) {
     const levelId = body?.levelId as string | undefined;
     const score = Math.max(0, Number(body?.score || 0));
     const maxScore = Math.max(0, Number(body?.maxScore || 0));
+    const { failed } = parseFailureState(body);
 
     if (!levelId) {
       return NextResponse.json({ error: 'Missing levelId' }, { status: 400 });
@@ -27,6 +36,10 @@ export async function POST(request: NextRequest) {
 
     if (maxScore > 0 && score > maxScore) {
       return NextResponse.json({ error: 'Invalid score: score cannot exceed maxScore' }, { status: 400 });
+    }
+
+    if (failed) {
+      return NextResponse.json({ success: false, reason: 'no_lives_remaining' }, { status: 200 });
     }
 
     const userId = session.user.id;
