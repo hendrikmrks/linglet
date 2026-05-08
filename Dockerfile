@@ -4,14 +4,16 @@ RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts
+RUN npm ci --omit=dev --ignore-scripts
 
-# Stage 2: Build the application
+# Stage 2: Build the application (needs devDeps for prisma generate + next build)
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+RUN npm ci --ignore-scripts
+
 COPY . .
 
 # Generate Prisma client and build Next.js
