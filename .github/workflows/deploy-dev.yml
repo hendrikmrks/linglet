@@ -36,7 +36,7 @@ jobs:
               --env-file .env \
               --add-host host.docker.internal:host-gateway \
               linglet-dev \
-              npx prisma migrate deploy
+              prisma migrate deploy
 
             echo "==> Running seeds (dev - fresh each deploy)"
             docker run --rm \

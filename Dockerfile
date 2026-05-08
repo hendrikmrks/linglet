@@ -35,6 +35,8 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+RUN chmod +x /app/node_modules/prisma/build/index.js && \
+    ln -s /app/node_modules/prisma/build/index.js /usr/local/bin/prisma
 
 # Seed scripts needed for deploy-time seeding
 COPY --from=builder /app/seed*.js ./
