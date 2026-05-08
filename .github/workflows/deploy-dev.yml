@@ -1,0 +1,49 @@
+name: Deploy to Beta
+
+on:
+  push:
+    branches: [dev]
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to beta.linglet.de
+    runs-on: ubuntu-latest
+    environment: development
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: linglet.de
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/linglet/dev
+
+            echo "==> Pulling latest code"
+            git pull origin dev
+
+            echo "==> Running migrations"
+            docker run --rm \
+              --env-file .env \
+              --add-host host.docker.internal:host-gateway \
+              $(docker build -q .) \
+              npx prisma migrate deploy
+
+            echo "==> Building and starting container"
+            docker compose -f docker-compose.dev.yml build --no-cache
+            docker compose -f docker-compose.dev.yml up -d
+
+            echo "==> Cleaning up old images"
+            docker image prune -f
+
+            echo "==> Waiting for health check"
+            sleep 10
+            curl -sf http://localhost:3001/api/health || (echo "Health check failed!" && exit 1)
+
+            echo "==> Beta deployment complete"

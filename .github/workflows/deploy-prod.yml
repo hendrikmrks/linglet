@@ -1,0 +1,49 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to linglet.de
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: linglet.de
+          username: root
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            cd /opt/linglet/prod
+
+            echo "==> Pulling latest code"
+            git pull origin main
+
+            echo "==> Running migrations"
+            docker run --rm \
+              --env-file .env \
+              --add-host host.docker.internal:host-gateway \
+              $(docker build -q .) \
+              npx prisma migrate deploy
+
+            echo "==> Building and starting container"
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d
+
+            echo "==> Cleaning up old images"
+            docker image prune -f
+
+            echo "==> Waiting for health check"
+            sleep 10
+            curl -sf http://localhost:3000/api/health || (echo "Health check failed!" && exit 1)
+
+            echo "==> Production deployment complete"
