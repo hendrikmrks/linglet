@@ -10,6 +10,7 @@ interface User {
   isAdmin?: boolean;
   xp?: number;
   streakCount?: number;
+  streakUpdatedAt?: string | null;
   language?: string;
   learningLanguage?: string;
   onboardingComplete?: boolean;

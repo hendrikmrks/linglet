@@ -12,6 +12,7 @@ interface StatsData {
   xpInLevel: number;
   xpToNextLevel: number;
   streakCount: number;
+  streakUpdatedAt: string | null;
   completedLevels: number;
   totalLevels: number;
   badgesCount: number;
@@ -144,12 +145,19 @@ function StatsContent({ user }: { user: any }) {
   const fromLang = LANGUAGE_NAMES[stats.language] ?? stats.language;
   const toLang = LANGUAGE_NAMES[stats.learningLanguage] ?? stats.learningLanguage;
 
+  const locale = language === 'de' ? 'de-DE' : language === 'pt-br' ? 'pt-BR' : 'en-US';
+
   const memberSince = stats.memberSince
-    ? new Date(stats.memberSince).toLocaleDateString(
-        language === 'de' ? 'de-DE' : language === 'pt-br' ? 'pt-BR' : 'en-US',
-        { year: 'numeric', month: 'long', day: 'numeric' }
-      )
+    ? new Date(stats.memberSince).toLocaleDateString(locale, {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })
     : '—';
+
+  const lastStreakActivity = stats.streakCount > 0 && stats.streakUpdatedAt
+    ? new Date(stats.streakUpdatedAt).toLocaleDateString(locale, {
+        year: 'numeric', month: 'long', day: 'numeric'
+      })
+    : null;
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -194,7 +202,7 @@ function StatsContent({ user }: { user: any }) {
       </div>
 
       {/* Stat Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-3">
         <StatCard
           icon="🔥"
           label={t('stats.currentStreak')}
@@ -216,6 +224,12 @@ function StatsContent({ user }: { user: any }) {
           color="bg-purple-50 border-purple-200"
         />
       </div>
+
+      {lastStreakActivity && (
+        <p className="mb-8 text-sm text-gray-500">
+          🔥 {t('stats.lastStreakActivity')}: {lastStreakActivity}
+        </p>
+      )}
 
       {/* Completed levels progress bar */}
       {stats.totalLevels > 0 && (

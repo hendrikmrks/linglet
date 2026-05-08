@@ -12,6 +12,7 @@ interface User {
   plan: 'FREE' | 'PREMIUM';
   xp: number;
   streakCount: number;
+  streakUpdatedAt?: string | null;
   isAdmin?: boolean;
   onboardingComplete?: boolean;
 }

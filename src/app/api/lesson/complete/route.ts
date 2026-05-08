@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { getEligibleBadges } from '@/lib/badges';
 import { ensurePremiumSettings } from '@/lib/premium-settings';
+import { updateStreak } from '@/lib/streak';
 
 const MIN_XP_REWARD = 5;
 const MAX_XP_REWARD = 30;
@@ -83,30 +84,7 @@ export async function POST(request: NextRequest) {
       [userId, levelId]
     );
 
-    if (currentStatus !== 'COMPLETED') {
-      const streakResult = await db.query(
-        'SELECT "streakCount", "streakUpdatedAt" FROM "User" WHERE id = $1',
-        [userId]
-      );
-      const currentStreak = Number(streakResult.rows[0]?.streakCount || 0);
-      const lastUpdatedAt = streakResult.rows[0]?.streakUpdatedAt
-        ? new Date(streakResult.rows[0].streakUpdatedAt)
-        : null;
-
-      const today = new Date().toISOString().slice(0, 10);
-      const lastDay = lastUpdatedAt ? lastUpdatedAt.toISOString().slice(0, 10) : null;
-
-      if (lastDay !== today) {
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayStr = yesterday.toISOString().slice(0, 10);
-        const newStreak = lastDay === yesterdayStr ? currentStreak + 1 : 1;
-        await db.query(
-          'UPDATE "User" SET "streakCount" = $1, "streakUpdatedAt" = NOW(), "updatedAt" = NOW() WHERE id = $2',
-          [newStreak, userId]
-        );
-      }
-    }
+    await updateStreak(userId);
 
     const userResult = await db.query(
       'SELECT xp, "streakCount" FROM "User" WHERE id = $1',

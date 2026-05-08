@@ -1,10 +1,11 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const { mockDbQuery, mockGetSession, mockEnsurePremiumSettings } = vi.hoisted(() => ({
+const { mockDbQuery, mockGetSession, mockEnsurePremiumSettings, mockUpdateStreak } = vi.hoisted(() => ({
   mockDbQuery: vi.fn(),
   mockGetSession: vi.fn(),
   mockEnsurePremiumSettings: vi.fn(),
+  mockUpdateStreak: vi.fn(),
 }));
 
 vi.mock('@/lib/db', () => ({
@@ -21,6 +22,10 @@ vi.mock('@/lib/badges', () => ({
 
 vi.mock('@/lib/premium-settings', () => ({
   ensurePremiumSettings: mockEnsurePremiumSettings,
+}));
+
+vi.mock('@/lib/streak', () => ({
+  updateStreak: mockUpdateStreak,
 }));
 
 import { POST } from '@/app/api/lesson/complete/route';
@@ -62,85 +67,35 @@ function makeRequest(body: object) {
   });
 }
 
-/**
- * Helper: sets up the standard DB mock sequence for a lesson completion.
- * Note: the daily-limit DB query is only executed when maxLessonsPerDay > 0.
- * Since mockPremiumSettings sets maxLessonsPerDayFree = -1, that query is skipped.
- *
- * Sequence:
- * 1. Current lesson progress (SELECT status FROM "UserLevelProgress")
- * 2. XP update (UPDATE "User" SET xp …)
- * 3. Lesson progress update (UPDATE "UserLevelProgress" SET status = 'COMPLETED' …)
- * 4. Streak read  (only when currentStatus !== 'COMPLETED')
- * 5. Streak write (only when lastDay !== today AND currentStatus !== 'COMPLETED')
- * 6. User XP/streak read
- * 7. Completed lessons count
- */
 function setupDbMocks({
   currentStatus = null as string | null,
   currentStreak = 0,
-  lastStreakDate = null as string | null,
-  streakShouldUpdate = true,
 } = {}) {
-  const isAlreadyCompleted = currentStatus === 'COMPLETED';
-
   const callQueue: Array<{ rows: object[] }> = [
-    // 1. Current lesson progress
     { rows: currentStatus ? [{ status: currentStatus }] : [] },
-    // 2. XP update
     { rows: [] },
-    // 3. Lesson progress update
     { rows: [] },
+    { rows: [{ xp: 100, streakCount: currentStreak }] },
+    { rows: [{ count: 1 }] },
   ];
-
-  if (!isAlreadyCompleted) {
-    // 4. Streak read
-    callQueue.push({
-      rows: [
-        {
-          streakCount: currentStreak,
-          streakUpdatedAt: lastStreakDate ? new Date(lastStreakDate) : null,
-        },
-      ],
-    });
-
-    if (streakShouldUpdate) {
-      // 5. Streak write
-      callQueue.push({ rows: [] });
-    }
-  }
-
-  // Always: user read, completed count
-  callQueue.push({ rows: [{ xp: 100, streakCount: currentStreak }] });
-  callQueue.push({ rows: [{ count: 1 }] });
 
   mockDbQuery.mockReset();
   for (const result of callQueue) {
     mockDbQuery.mockResolvedValueOnce(result);
   }
-  // Fallback for any extra calls (e.g. badge inserts)
   mockDbQuery.mockResolvedValue({ rows: [] });
 }
-
-// ─── helpers for date strings ────────────────────────────────────────────────
-
-function today() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function daysAgo(n: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 
 describe('POST /api/lesson/complete – Streak-Logik', () => {
   beforeEach(() => {
     vi.resetAllMocks();
     mockGetSession.mockResolvedValue(mockSession);
     mockEnsurePremiumSettings.mockResolvedValue(mockPremiumSettings);
+    mockUpdateStreak.mockResolvedValue({
+      streakCount: 1,
+      streakUpdatedAt: new Date(),
+      updated: true,
+    });
   });
 
   it('gibt 401 zurück, wenn der Nutzer nicht eingeloggt ist', async () => {
@@ -156,91 +111,24 @@ describe('POST /api/lesson/complete – Streak-Logik', () => {
 
   // ── Streak-Tests ────────────────────────────────────────────────────────────
 
-  it('setzt Streak auf 1 beim ersten Abschluss (kein vorheriger Streak)', async () => {
-    setupDbMocks({ currentStreak: 0, lastStreakDate: null, streakShouldUpdate: true });
+  it('ruft updateStreak bei erfolgreichem Abschluss auf', async () => {
+    setupDbMocks({ currentStreak: 0 });
 
     const res = await POST(makeRequest({ levelId: 'level1', score: 10, maxScore: 10 }) as any);
     expect(res.status).toBe(200);
-
-    // Streak-Update-Query muss mit newStreak=1 aufgerufen worden sein
-    const streakUpdateCall = mockDbQuery.mock.calls.find(
-      (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('"streakCount"') &&
-        call[0].includes('UPDATE "User"') &&
-        call[1]?.[0] === 1
-    );
-    expect(streakUpdateCall).toBeDefined();
+    expect(mockUpdateStreak).toHaveBeenCalledWith('user1');
   });
 
-  it('erhöht den Streak um 1 bei Abschluss am Folgetag', async () => {
-    const yesterday = daysAgo(1);
-    setupDbMocks({ currentStreak: 3, lastStreakDate: yesterday, streakShouldUpdate: true });
+  it('ruft updateStreak auch bei Wiederholung eines bereits abgeschlossenen Levels auf', async () => {
+    setupDbMocks({ currentStatus: 'COMPLETED', currentStreak: 3 });
 
     const res = await POST(makeRequest({ levelId: 'level1', score: 10, maxScore: 10 }) as any);
     expect(res.status).toBe(200);
-
-    const streakUpdateCall = mockDbQuery.mock.calls.find(
-      (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('"streakCount"') &&
-        call[0].includes('UPDATE "User"') &&
-        call[1]?.[0] === 4 // 3 + 1
-    );
-    expect(streakUpdateCall).toBeDefined();
-  });
-
-  it('setzt Streak zurück auf 1 wenn ein Tag ausgelassen wurde', async () => {
-    const twoDaysAgo = daysAgo(2);
-    setupDbMocks({ currentStreak: 5, lastStreakDate: twoDaysAgo, streakShouldUpdate: true });
-
-    const res = await POST(makeRequest({ levelId: 'level1', score: 10, maxScore: 10 }) as any);
-    expect(res.status).toBe(200);
-
-    const streakUpdateCall = mockDbQuery.mock.calls.find(
-      (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('"streakCount"') &&
-        call[0].includes('UPDATE "User"') &&
-        call[1]?.[0] === 1 // reset to 1
-    );
-    expect(streakUpdateCall).toBeDefined();
-  });
-
-  it('ändert den Streak NICHT wenn heute bereits eine Übung abgeschlossen wurde', async () => {
-    setupDbMocks({ currentStreak: 2, lastStreakDate: today(), streakShouldUpdate: false });
-
-    const res = await POST(makeRequest({ levelId: 'level1', score: 10, maxScore: 10 }) as any);
-    expect(res.status).toBe(200);
-
-    // Kein Streak-Update-Query darf abgesetzt worden sein
-    const streakUpdateCall = mockDbQuery.mock.calls.find(
-      (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('"streakCount"') &&
-        call[0].includes('UPDATE "User"')
-    );
-    expect(streakUpdateCall).toBeUndefined();
-  });
-
-  it('aktualisiert den Streak NICHT wenn die Übung bereits abgeschlossen war (currentStatus=COMPLETED)', async () => {
-    // When currentStatus is COMPLETED the route skips the entire streak block
-    setupDbMocks({ currentStatus: 'COMPLETED', currentStreak: 3, lastStreakDate: daysAgo(1), streakShouldUpdate: false });
-
-    const res = await POST(makeRequest({ levelId: 'level1', score: 10, maxScore: 10 }) as any);
-    expect(res.status).toBe(200);
-
-    const streakUpdateCall = mockDbQuery.mock.calls.find(
-      (call) =>
-        typeof call[0] === 'string' &&
-        call[0].includes('"streakCount"') &&
-        call[0].includes('UPDATE "User"')
-    );
-    expect(streakUpdateCall).toBeUndefined();
+    expect(mockUpdateStreak).toHaveBeenCalledWith('user1');
   });
 
   it('antwortet mit success:true und xpReward', async () => {
-    setupDbMocks({ currentStreak: 1, lastStreakDate: daysAgo(1), streakShouldUpdate: true });
+    setupDbMocks({ currentStreak: 1 });
 
     const res = await POST(makeRequest({ levelId: 'level1', score: 8, maxScore: 10 }) as any);
     expect(res.status).toBe(200);

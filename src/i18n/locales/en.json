@@ -628,6 +628,7 @@
     "totalLevels": "Total",
     "badges": "Badges",
     "member": "Member since",
+    "lastStreakActivity": "Last streak activity",
     "getCertificate": "View Certificate",
     "loading": "Loading stats..."
   },

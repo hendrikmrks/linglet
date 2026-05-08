@@ -67,7 +67,7 @@ export async function getSession(req: NextRequest) {
 
   const result = await db.query(
     `SELECT s."sessionToken", s."userId", s."expiresAt", s."createdAt", s."updatedAt",
-            u.id as "user_id", u.email, u.name, u."firstName", u."showFullName", u.plan, u."isAdmin", u.xp, u."streakCount", u."learningLanguage", u.language, u."onboardingComplete"
+            u.id as "user_id", u.email, u.name, u."firstName", u."showFullName", u.plan, u."isAdmin", u.xp, u."streakCount", u."streakUpdatedAt", u."learningLanguage", u.language, u."onboardingComplete"
      FROM "Session" s
      JOIN "User" u ON s."userId" = u.id
      WHERE s."sessionToken" = $1`,
@@ -102,6 +102,7 @@ export async function getSession(req: NextRequest) {
       isAdmin: row.isAdmin,
       xp: row.xp,
       streakCount: row.streakCount,
+      streakUpdatedAt: row.streakUpdatedAt,
       learningLanguage: row.learningLanguage,
       language: row.language,
       onboardingComplete: row.onboardingComplete

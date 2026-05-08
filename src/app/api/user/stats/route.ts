@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
         xpInLevel,
         xpToNextLevel: 500 - xpInLevel,
         streakCount: session.user.streakCount ?? 0,
+        streakUpdatedAt: session.user.streakUpdatedAt ?? null,
         completedLevels,
         totalLevels,
         badgesCount,
