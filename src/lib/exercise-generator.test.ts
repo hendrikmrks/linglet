@@ -2,10 +2,34 @@ import { describe, it, expect } from 'vitest';
 import { generateExercises, type GeneratedExercise } from '@/lib/exercise-generator';
 
 const mockVocab = [
-  { id: '1', word: 'Hund', translation: 'cachorro', example: 'Der Hund spielt im Park.' },
-  { id: '2', word: 'Katze', translation: 'gato', example: 'Die Katze schläft auf dem Sofa.' },
-  { id: '3', word: 'Haus', translation: 'casa', example: 'Das Haus ist sehr alt.' },
-  { id: '4', word: 'Auto', translation: 'carro', example: 'Mein Auto ist blau.' },
+  {
+    id: '1',
+    word: 'Hund',
+    translation: 'cachorro',
+    example: 'Der Hund spielt im Park.',
+    translatedExample: 'O cachorro brinca no parque.',
+  },
+  {
+    id: '2',
+    word: 'Katze',
+    translation: 'gato',
+    example: 'Die Katze schläft auf dem Sofa.',
+    translatedExample: 'O gato dorme no sofá.',
+  },
+  {
+    id: '3',
+    word: 'Haus',
+    translation: 'casa',
+    example: 'Das Haus ist sehr alt.',
+    translatedExample: 'A casa é muito antiga.',
+  },
+  {
+    id: '4',
+    word: 'Auto',
+    translation: 'carro',
+    example: 'Mein Auto ist blau.',
+    translatedExample: 'Meu carro é azul.',
+  },
   { id: '5', word: 'Baum', translation: 'arvore' },
 ];
 
@@ -85,7 +109,7 @@ describe('generateExercises', () => {
     }
   });
 
-  it('fill-in-blank exercises only use vocab with examples and replace the word with a blank', () => {
+  it('fill-in-blank exercises only use target-language examples and blank the translation', () => {
     const result = generateExercises(mockVocab);
     const fillInBlank = result.filter((exercise) => exercise.type === 'fill-in-blank');
     expect(fillInBlank.length).toBeGreaterThan(0);
@@ -93,10 +117,12 @@ describe('generateExercises', () => {
     for (const exercise of fillInBlank) {
       if (exercise.type !== 'fill-in-blank') continue;
       const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
-      expect(vocab.example).toBeTruthy();
+      expect(vocab.translatedExample).toBeTruthy();
       expect(exercise.sentence).toContain('_____');
+      expect(exercise.sentence).not.toContain(vocab.translation);
       expect(exercise.options).toHaveLength(4);
-      expect(exercise.options[exercise.correctIndex]).toBe(vocab.word);
+      expect(exercise.options[exercise.correctIndex]).toBe(vocab.translation);
+      expect(exercise.options).not.toContain(vocab.word);
     }
   });
 
@@ -117,7 +143,7 @@ describe('generateExercises', () => {
     }
   });
 
-  it('word-scramble exercises use the correct word and a different scrambled value', () => {
+  it('word-scramble exercises require spelling the target translation, not the source word', () => {
     const result = generateExercises(mockVocab);
     const wordScrambles = result.filter((exercise) => exercise.type === 'word-scramble');
     expect(wordScrambles.length).toBeGreaterThan(0);
@@ -125,9 +151,10 @@ describe('generateExercises', () => {
     for (const exercise of wordScrambles) {
       if (exercise.type !== 'word-scramble') continue;
       const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
-      expect(exercise.correctWord).toBe(vocab.word);
-      expect(exercise.scrambledWord).not.toBe(vocab.word);
-      expect(exercise.scrambledWord.length).toBe(vocab.word.length);
+      expect(exercise.prompt).toBe(vocab.word);
+      expect(exercise.correctWord).toBe(vocab.translation);
+      expect(exercise.scrambledWord).not.toBe(vocab.translation);
+      expect(exercise.scrambledWord.length).toBe(vocab.translation.length);
     }
   });
 
@@ -145,6 +172,12 @@ describe('generateExercises', () => {
 
   it('does not crash with 2 vocab items', () => {
     expect(() => generateExercises(mockVocab.slice(0, 2))).not.toThrow();
+  });
+
+  it('skips fill-in-blank when no target-language example exists', () => {
+    const result = generateExercises([mockVocab[4]]);
+    const fillInBlank = result.filter((exercise) => exercise.type === 'fill-in-blank');
+    expect(fillInBlank).toHaveLength(0);
   });
 
   it('type-answer is generated even with 1 vocab item', () => {

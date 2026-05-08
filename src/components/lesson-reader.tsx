@@ -18,6 +18,7 @@ interface Vocabulary {
   word: string;
   translation: string;
   example?: string;
+  translatedExample?: string;
 }
 
 interface Subchapter {

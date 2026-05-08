@@ -2,13 +2,13 @@
  * Generates Duolingo-style exercises from vocabulary data.
  *
  * Exercise types:
- *  - translate-choice : show word → pick correct translation (4 options)
- *  - reverse-choice   : show translation → pick correct word (4 options)
- *  - match-pairs      : match 3-4 word↔translation pairs
- *  - type-answer      : type the translation for a word
- *  - fill-in-blank    : fill the missing word in an example sentence
- *  - true-false       : decide whether a translation pairing is correct
- *  - word-scramble    : rebuild a scrambled word from its translation
+ *  - translate-choice : show source word → pick the target translation (4 options)
+ *  - reverse-choice   : show target word → pick the source meaning (4 options)
+ *  - match-pairs      : match source words with target translations
+ *  - type-answer      : type the target translation for a source word
+ *  - fill-in-blank    : fill the missing target word in a target-language example sentence
+ *  - true-false       : decide whether a source→target pairing is correct
+ *  - word-scramble    : rebuild a scrambled target word from its source-language prompt
  */
 
 export interface Vocabulary {
@@ -16,6 +16,7 @@ export interface Vocabulary {
   word: string;
   translation: string;
   example?: string;
+  translatedExample?: string;
 }
 
 export type GeneratedExercise =
@@ -162,27 +163,27 @@ function createReverseChoice(vocab: Vocabulary, allWords: string[]): GeneratedEx
   };
 }
 
-function createFillInBlank(vocab: Vocabulary, allWords: string[]): GeneratedExercise | null {
-  if (!vocab.example) {
+function createFillInBlank(vocab: Vocabulary, allTranslations: string[]): GeneratedExercise | null {
+  if (!vocab.translatedExample) {
     return null;
   }
 
-  const sentence = replaceWordWithBlank(vocab.example, vocab.word);
+  const sentence = replaceWordWithBlank(vocab.translatedExample, vocab.translation);
   if (!sentence) {
     return null;
   }
 
-  const distractors = pickDistractors(allWords, vocab.word, 3);
+  const distractors = pickDistractors(allTranslations, vocab.translation, 3);
   if (distractors.length < 3) {
     return null;
   }
 
-  const options = shuffle([vocab.word, ...distractors]);
+  const options = shuffle([vocab.translation, ...distractors]);
   return {
     type: 'fill-in-blank',
     sentence,
     options,
-    correctIndex: options.indexOf(vocab.word),
+    correctIndex: options.indexOf(vocab.translation),
     vocabularyId: vocab.id,
   };
 }
@@ -208,21 +209,21 @@ function createTrueFalse(
 }
 
 function createWordScramble(vocab: Vocabulary): GeneratedExercise | null {
-  const trimmedWord = vocab.word.trim();
-  if (/\s/.test(trimmedWord)) {
+  const trimmedTranslation = vocab.translation.trim();
+  if (/\s/.test(trimmedTranslation)) {
     return null;
   }
 
-  const scrambledWord = scrambleWord(trimmedWord);
+  const scrambledWord = scrambleWord(trimmedTranslation);
   if (!scrambledWord) {
     return null;
   }
 
   return {
     type: 'word-scramble',
-    prompt: vocab.translation,
+    prompt: vocab.word,
     scrambledWord,
-    correctWord: trimmedWord,
+    correctWord: trimmedTranslation,
     vocabularyId: vocab.id,
   };
 }
@@ -283,7 +284,7 @@ export function generateExercises(vocabulary: Vocabulary[]): GeneratedExercise[]
       vocabularyId: vocab.id,
     });
 
-    const fillInBlank = createFillInBlank(vocab, allWords);
+    const fillInBlank = createFillInBlank(vocab, allTranslations);
     if (fillInBlank) {
       pools['fill-in-blank'].push(fillInBlank);
     }

@@ -1106,17 +1106,17 @@ export function ContentManager() {
                   <span className="text-3xl">🌍</span>
                   <div>
                     <p className="text-base font-bold text-green-900">
-                      Übersetzungsrichtung: {getLanguageName(parseCombination(filterCombination)[1])} → {getLanguageName(parseCombination(filterCombination)[0])}
+                      Übersetzungsrichtung: {getLanguageName(parseCombination(filterCombination)[0])} → {getLanguageName(parseCombination(filterCombination)[1])}
                     </p>
                     <p className="text-sm text-green-700">
-                      Vokabel in <strong>{getLanguageName(parseCombination(filterCombination)[1])}</strong> eingeben, 
-                      Übersetzung auf <strong>{getLanguageName(parseCombination(filterCombination)[0])}</strong>
+                      Vokabel in <strong>{getLanguageName(parseCombination(filterCombination)[0])}</strong> eingeben,
+                      Übersetzung auf <strong>{getLanguageName(parseCombination(filterCombination)[1])}</strong>
                     </p>
                   </div>
                 </div>
                 <div className="mt-3 p-2 bg-white rounded border border-green-300">
                   <p className="text-xs text-gray-700">
-                    💡 <strong>Beispiel:</strong> {filterCombination === 'de|en' ? 'Wort: "Hello", Übersetzung: "Hallo"' : filterCombination === 'de|pt-br' ? 'Wort: "Olá", Übersetzung: "Hallo"' : 'Vokabel in Zielsprache, Übersetzung in Ausgangssprache'}
+                    💡 <strong>Beispiel:</strong> {filterCombination === 'de|en' ? 'Wort: "Hallo", Übersetzung: "Hello"' : filterCombination === 'de|pt-br' ? 'Wort: "Hallo", Übersetzung: "Olá"' : 'Vokabel in Ausgangssprache, Übersetzung in Zielsprache'}
                   </p>
                 </div>
               </div>
@@ -1128,11 +1128,11 @@ export function ContentManager() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {getLanguageFlag(parseCombination(filterCombination)[1])} Wort in {getLanguageName(parseCombination(filterCombination)[1])}*
+                      {getLanguageFlag(parseCombination(filterCombination)[0])} Wort in {getLanguageName(parseCombination(filterCombination)[0])}*
                     </label>
                     <input
                       type="text"
-                      placeholder={filterCombination === 'de|en' ? 'e.g. House' : filterCombination === 'de|pt-br' ? 'p.ex. Casa' : 'Wort in Zielsprache'}
+                      placeholder={filterCombination === 'de|en' ? 'z.B. Haus' : filterCombination === 'de|pt-br' ? 'z.B. Haus' : 'Wort in Ausgangssprache'}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       value={vocabularyForm.word}
                       onChange={(e) => setVocabularyForm({ ...vocabularyForm, word: e.target.value })}
@@ -1140,11 +1140,11 @@ export function ContentManager() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {getLanguageFlag(parseCombination(filterCombination)[0])} Übersetzung in {getLanguageName(parseCombination(filterCombination)[0])}*
+                      {getLanguageFlag(parseCombination(filterCombination)[1])} Übersetzung in {getLanguageName(parseCombination(filterCombination)[1])}*
                     </label>
                     <input
                       type="text"
-                      placeholder="z.B. Haus"
+                      placeholder={filterCombination === 'de|en' ? 'e.g. House' : filterCombination === 'de|pt-br' ? 'p.ex. Casa' : 'Übersetzung in Zielsprache'}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       value={vocabularyForm.translation}
                       onChange={(e) => setVocabularyForm({ ...vocabularyForm, translation: e.target.value })}
@@ -1165,10 +1165,10 @@ export function ContentManager() {
                   <div></div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {getLanguageFlag(parseCombination(filterCombination)[1])} Beispielsatz in {getLanguageName(parseCombination(filterCombination)[1])} (optional)
+                      {getLanguageFlag(parseCombination(filterCombination)[0])} Beispielsatz in {getLanguageName(parseCombination(filterCombination)[0])} (optional)
                     </label>
                     <textarea
-                      placeholder={filterCombination === 'de|en' ? 'e.g. This is my house.' : filterCombination === 'de|pt-br' ? 'p.ex. Esta é a minha casa.' : 'Beispielsatz in Zielsprache'}
+                      placeholder={filterCombination === 'de|en' ? 'z.B. Das ist mein Haus.' : filterCombination === 'de|pt-br' ? 'z.B. Das ist mein Haus.' : 'Beispielsatz in Ausgangssprache'}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows={2}
                       value={vocabularyForm.example}
@@ -1177,10 +1177,10 @@ export function ContentManager() {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      {getLanguageFlag(parseCombination(filterCombination)[0])} Übersetzter Beispielsatz in {getLanguageName(parseCombination(filterCombination)[0])} (optional)
+                      {getLanguageFlag(parseCombination(filterCombination)[1])} Übersetzter Beispielsatz in {getLanguageName(parseCombination(filterCombination)[1])} (optional)
                     </label>
                     <textarea
-                      placeholder={filterCombination === 'de|en' ? 'z.B. Das ist mein Haus.' : 'Übersetzung in Ausgangssprache'}
+                      placeholder={filterCombination === 'de|en' ? 'e.g. This is my house.' : filterCombination === 'de|pt-br' ? 'p.ex. Esta é a minha casa.' : 'Übersetzung in Zielsprache'}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       rows={2}
                       value={vocabularyForm.translatedExample}
@@ -1224,25 +1224,25 @@ export function ContentManager() {
                               <span className="text-lg font-bold text-purple-600">#{vocab.order}</span>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-lg font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-lg">
-                                  {getLanguageFlag(parseCombination(filterCombination)[1])} {vocab.word}
+                                  {getLanguageFlag(parseCombination(filterCombination)[0])} {vocab.word}
                                 </span>
                                 <span className="text-gray-400 text-xl">→</span>
                                 <span className="text-lg font-bold text-green-700 bg-green-50 px-3 py-1 rounded-lg">
-                                  🇩🇪 {vocab.translation}
+                                  {getLanguageFlag(parseCombination(filterCombination)[1])} {vocab.translation}
                                 </span>
                               </div>
                             </div>
                             <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
-                              🌍 {getLanguageName(parseCombination(filterCombination)[1])} → Deutsch
+                              🌍 {getLanguageName(parseCombination(filterCombination)[0])} → {getLanguageName(parseCombination(filterCombination)[1])}
                             </p>
                             {vocab.example && (
                               <div className="mt-2 p-2 bg-blue-50 rounded border border-blue-200">
                                 <p className="text-sm text-blue-900">
-                                  <span className="font-semibold">{getLanguageFlag(parseCombination(filterCombination)[1])} Beispiel:</span> {vocab.example}
+                                  <span className="font-semibold">{getLanguageFlag(parseCombination(filterCombination)[0])} Beispiel:</span> {vocab.example}
                                 </p>
                                 {vocab.translatedExample && (
                                   <p className="text-sm text-green-900 mt-1">
-                                    <span className="font-semibold">🇩🇪 Übersetzung:</span> {vocab.translatedExample}
+                                    <span className="font-semibold">{getLanguageFlag(parseCombination(filterCombination)[1])} Übersetzung:</span> {vocab.translatedExample}
                                   </p>
                                 )}
                               </div>
