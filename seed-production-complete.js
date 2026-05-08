@@ -22,13 +22,15 @@ function hydrateDbEnvFromDatabaseUrl() {
 
 hydrateDbEnvFromDatabaseUrl();
 
-const client = new Client({
+const DB_CONFIG = {
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '5432'),
   user: process.env.DB_USER || 'postgres',
   password: String(process.env.DB_PASSWORD || ''),
   database: process.env.DB_NAME || 'linglet',
-});
+};
+
+const client = new Client(DB_CONFIG);
 
 async function createAdmin() {
   try {
@@ -79,6 +81,78 @@ async function createAdmin() {
   }
 }
 
+async function seedFaqs() {
+  console.log('\n❓ Seeding premium FAQ entries...\n');
+
+  const faqClient = new Client(DB_CONFIG);
+  const starterFaqs = [
+    {
+      question: 'Welche Vorteile habe ich mit Premium?',
+      answer: 'Mit Premium bekommst du Zugriff auf alle Premium-Funktionen wie erweiterte Inhalte, priorisierten Support und zusätzliche Lernoptionen.',
+      order: 0,
+      language: 'de',
+      isActive: true,
+    },
+    {
+      question: 'Wie viel kostet Premium?',
+      answer: 'Der Premium-Plan kostet aktuell 9,99 € pro Monat. Details erhältst du nach deiner Anfrage im Upgrade-Bereich.',
+      order: 1,
+      language: 'de',
+      isActive: true,
+    },
+    {
+      question: 'Wie funktioniert die Kündigung?',
+      answer: 'Du kannst dein Premium-Abo jederzeit zum Ende der aktuellen Laufzeit kündigen. Wende dich dafür einfach an den Support.',
+      order: 2,
+      language: 'de',
+      isActive: true,
+    },
+    {
+      question: 'Gibt es eine Testphase?',
+      answer: 'Falls wir gerade eine Testphase anbieten, informieren wir dich direkt nach deiner Premium-Anfrage über die genauen Konditionen.',
+      order: 3,
+      language: 'de',
+      isActive: true,
+    },
+    {
+      question: 'Wie schnell wird mein Upgrade aktiviert?',
+      answer: 'Wir prüfen deine Premium-Anfrage manuell. Nach der Freigabe wird dein Account so schnell wie möglich auf Premium umgestellt.',
+      order: 4,
+      language: 'de',
+      isActive: true,
+    },
+  ];
+
+  try {
+    await faqClient.connect();
+
+    for (const faq of starterFaqs) {
+      const existingFaq = await faqClient.query(
+        'SELECT id FROM "Faq" WHERE question = $1 AND language = $2 LIMIT 1',
+        [faq.question, faq.language]
+      );
+
+      if (existingFaq.rows.length > 0) {
+        console.log(`⚠️  FAQ already exists: ${faq.question}`);
+        continue;
+      }
+
+      await faqClient.query(
+        `INSERT INTO "Faq" (id, question, answer, "order", language, "isActive", "createdAt", "updatedAt")
+         VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, NOW(), NOW())`,
+        [faq.question, faq.answer, faq.order, faq.language, faq.isActive]
+      );
+
+      console.log(`✅ FAQ seeded: ${faq.question}`);
+    }
+  } catch (error) {
+    console.error('❌ Error seeding FAQs:', error.message);
+    throw error;
+  } finally {
+    await faqClient.end();
+  }
+}
+
 async function seedChapters() {
   console.log('\n📚 Seeding Portuguese-German chapters...\n');
 
@@ -102,7 +176,13 @@ async function main() {
     await createAdmin();
 
     console.log(`\n${'='.repeat(60)}`);
-    console.log('STEP 2: Seeding Language Content');
+    console.log('STEP 2: Seeding Premium FAQ');
+    console.log(`${'='.repeat(60)}\n`);
+
+    await seedFaqs();
+
+    console.log(`\n${'='.repeat(60)}`);
+    console.log('STEP 3: Seeding Language Content');
     console.log(`${'='.repeat(60)}\n`);
 
     await seedChapters();

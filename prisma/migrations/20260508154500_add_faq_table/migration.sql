@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS "Faq" (
+  id TEXT PRIMARY KEY DEFAULT gen_random_uuid()::text,
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  "order" INTEGER NOT NULL DEFAULT 0,
+  language TEXT NOT NULL DEFAULT 'de',
+  "isActive" BOOLEAN NOT NULL DEFAULT true,
+  "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

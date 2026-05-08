@@ -197,6 +197,19 @@ model PremiumSettings {
   updatedAt DateTime @updatedAt
 }
 
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  order     Int      @default(0)
+  language  String   @default("de")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([language, isActive, order])
+}
+
 model ShopItem {
   id          String         @id @default(cuid())
   name        String
