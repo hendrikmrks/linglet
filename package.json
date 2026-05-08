@@ -12,6 +12,8 @@
     "db:seed:production": "node seed-production.js",
     "db:seed:production:complete": "node seed-production-complete.js",
     "db:seed:chapters": "node seed-all-pt-de.js",
+    "seed:prod": "node scripts/seed-runner.js --env prod",
+    "seed:dev": "node scripts/seed-runner.js --env dev",
     "health:check": "node production-health-check.js",
     "test:pipeline": "node test-pipeline.js",
     "test": "vitest run",

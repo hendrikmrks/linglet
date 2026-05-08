@@ -30,10 +30,16 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
 
-# Prisma schema needed for runtime migrations
+# Prisma schema + CLI needed for runtime migrations
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+
+# Seed scripts needed for deploy-time seeding
+COPY --from=builder /app/seed*.js ./
+COPY --from=builder /app/scripts ./scripts
+COPY --from=builder /app/node_modules/dotenv ./node_modules/dotenv
 
 USER nextjs
 

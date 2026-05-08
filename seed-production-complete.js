@@ -82,52 +82,12 @@ async function createAdmin() {
 async function seedChapters() {
   console.log('\n📚 Seeding Portuguese-German chapters...\n');
 
-  const seedFiles = [
-    { file: 'seed-de-pt-chapter1-grundlagen.js', name: 'DE→PT: Grundlagen' },
-    { file: 'seed-de-pt-chapter2-alltag.js', name: 'DE→PT: Alltag' },
-    { file: 'seed-de-pt-chapter3-zu-hause.js', name: 'DE→PT: Zu Hause' },
-    { file: 'seed-de-pt-chapter4-freizeit.js', name: 'DE→PT: Freizeit' },
-    { file: 'seed-pt-de-chapter1-fundamentos.js', name: 'PT→DE: Fundamentos' },
-    { file: 'seed-pt-de-chapter2-dia-a-dia.js', name: 'PT→DE: Dia a dia' },
-    { file: 'seed-pt-de-chapter3-casa.js', name: 'PT→DE: Casa' },
-    { file: 'seed-pt-de-chapter4-lazer.js', name: 'PT→DE: Lazer' },
-  ];
-
-  let successCount = 0;
-  let failCount = 0;
-
-  for (const { file, name } of seedFiles) {
-    try {
-      console.log(`\n${'='.repeat(60)}`);
-      console.log(`📖 Seeding: ${name}`);
-      console.log(`${'='.repeat(60)}`);
-      
-      execSync(`node ${file}`, { 
-        stdio: 'inherit',
-        env: process.env 
-      });
-      
-      successCount++;
-    } catch (error) {
-      console.error(`\n❌ Failed to seed ${name}`);
-      failCount++;
-    }
-  }
-
-  console.log(`\n${'='.repeat(60)}`);
-  console.log('📊 CHAPTER SEEDING COMPLETE');
-  console.log(`${'='.repeat(60)}`);
-  console.log(`✅ Successfully seeded: ${successCount}/${seedFiles.length} chapters`);
-  if (failCount > 0) {
-    console.log(`❌ Failed: ${failCount}/${seedFiles.length} chapters`);
-  }
-  console.log('\n📚 Total content created:');
-  console.log('   - 8 chapters (4 per language direction)');
-  console.log('   - 40 subchapters (5 per chapter)');
-  console.log('   - 400 vocabulary items (10 per subchapter)');
-  console.log('');
-
-  if (failCount > 0) {
+  try {
+    execSync(`node seed-all-pt-de.js`, {
+      stdio: 'inherit',
+      env: process.env
+    });
+  } catch (error) {
     throw new Error('Some chapters failed to seed');
   }
 }

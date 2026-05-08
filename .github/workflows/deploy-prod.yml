@@ -28,15 +28,24 @@ jobs:
             echo "==> Pulling latest code"
             git pull origin main
 
+            echo "==> Building image"
+            docker compose -f docker-compose.prod.yml build --no-cache
+
             echo "==> Running migrations"
             docker run --rm \
               --env-file .env \
               --add-host host.docker.internal:host-gateway \
-              $(docker build -q .) \
+              linglet-prod \
               npx prisma migrate deploy
 
-            echo "==> Building and starting container"
-            docker compose -f docker-compose.prod.yml build --no-cache
+            echo "==> Running seeds (prod - only once)"
+            docker run --rm \
+              --env-file .env \
+              --add-host host.docker.internal:host-gateway \
+              linglet-prod \
+              node scripts/seed-runner.js --env prod
+
+            echo "==> Starting container"
             docker compose -f docker-compose.prod.yml up -d
 
             echo "==> Cleaning up old images"
