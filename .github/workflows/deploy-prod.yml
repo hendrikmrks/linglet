@@ -35,8 +35,7 @@ jobs:
             docker compose -f docker-compose.prod.yml build --no-cache
 
             echo "==> Running migrations"
-            DOCKER_GW=$(docker network inspect bridge --format '{{range .IPAM.Config}}{{.Gateway}}{{end}}' 2>/dev/null || echo "172.17.0.1")
-            DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | sed "s/host\.docker\.internal/$DOCKER_GW/")
+            DB_URL=$(grep ^DATABASE_URL .env | cut -d= -f2- | sed 's/host\.docker\.internal/127.0.0.1/')
             docker run --rm --network host \
               -e DATABASE_URL="$DB_URL" \
               linglet-prod prisma migrate deploy
