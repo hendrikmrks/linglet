@@ -907,5 +907,17 @@
     "noVocabulary": "Keine Vokabeln in diesem Unterkapitel.",
     "noTestExercises": "Keine Übungen für den Test verfügbar.",
     "backToLearningPath": "← Zurück zum Lernpfad"
+  },
+  "vocabIntro": {
+    "title": "Lerne zuerst die Vokabeln",
+    "cardOf": "{{current}} von {{total}}",
+    "example": "Beispiel",
+    "translatedExample": "Übersetzung",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "overview": "Alle Vokabeln",
+    "startExercise": "Übung starten",
+    "skip": "Überspringen",
+    "reviewAll": "Noch mal lernen"
   }
 }

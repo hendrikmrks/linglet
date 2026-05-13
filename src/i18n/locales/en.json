@@ -907,5 +907,17 @@
     "noVocabulary": "No vocabulary in this subchapter.",
     "noTestExercises": "No exercises available for the test.",
     "backToLearningPath": "← Back to learning path"
+  },
+  "vocabIntro": {
+    "title": "Learn the vocabulary first",
+    "cardOf": "{{current}} of {{total}}",
+    "example": "Example",
+    "translatedExample": "Translation",
+    "next": "Next",
+    "previous": "Back",
+    "overview": "All vocabulary",
+    "startExercise": "Start exercise",
+    "skip": "Skip",
+    "reviewAll": "Study again"
   }
 }

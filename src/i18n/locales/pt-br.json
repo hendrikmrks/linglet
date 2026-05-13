@@ -907,5 +907,17 @@
     "noVocabulary": "Nenhum vocabulário neste subcapítulo.",
     "noTestExercises": "Nenhum exercício disponível para o teste.",
     "backToLearningPath": "← Voltar à trilha de aprendizado"
+  },
+  "vocabIntro": {
+    "title": "Aprenda primeiro o vocabulário",
+    "cardOf": "{{current}} de {{total}}",
+    "example": "Exemplo",
+    "translatedExample": "Tradução",
+    "next": "Próxima",
+    "previous": "Voltar",
+    "overview": "Todo o vocabulário",
+    "startExercise": "Começar exercício",
+    "skip": "Pular",
+    "reviewAll": "Estudar de novo"
   }
 }

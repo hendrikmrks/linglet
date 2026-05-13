@@ -7,19 +7,12 @@ import { useUser } from '@/lib/user-context';
 import { useLanguage } from '@/lib/language-context';
 import { useTranslation } from '@/lib/use-translation';
 import { ExerciseRunner, type ExerciseSummary } from '@/components/exercise-runner';
-import { generateExercises, type GeneratedExercise } from '@/lib/exercise-generator';
+import { VocabIntro } from '@/components/vocab-intro';
+import { generateExercises, type GeneratedExercise, type Vocabulary } from '@/lib/exercise-generator';
 
 // ────────────────────────────────────────────
 // Types
 // ────────────────────────────────────────────
-
-interface Vocabulary {
-  id: string;
-  word: string;
-  translation: string;
-  example?: string;
-  translatedExample?: string;
-}
 
 interface Subchapter {
   id: string;
@@ -295,6 +288,7 @@ export function LessonReader() {
 
   // Summary / completion state  
   const [showSummary, setShowSummary] = useState(false);
+  const [showVocabIntro, setShowVocabIntro] = useState(false);
   const [lastSummary, setLastSummary] = useState<ExerciseSummary | null>(null);
   const [lastXpReward, setLastXpReward] = useState(0);
 
@@ -310,13 +304,30 @@ export function LessonReader() {
     return chapter.subchapters.find((s) => s.id === activeSubchapterId) || null;
   }, [chapter, activeSubchapterId]);
 
-  const resetSession = useCallback(() => {
-    setHearts(MAX_HEARTS);
-    setShowSummary(false);
-    setLastSummary(null);
-    setLastXpReward(0);
-    setExerciseKey((k) => k + 1);
-  }, []);
+  const shouldShowVocabIntro = useCallback(
+    (subchapter: Subchapter | null | undefined) => {
+      if (isTestMode || !subchapter) {
+        return false;
+      }
+
+      return subchapter.status !== 'LOCKED' && subchapter.vocabulary.length > 0;
+    },
+    [isTestMode]
+  );
+
+  const resetSession = useCallback(
+    (options: { skipIntro?: boolean; subchapter?: Subchapter | null } = {}) => {
+      const nextSubchapter = options.subchapter ?? activeSubchapter;
+
+      setHearts(MAX_HEARTS);
+      setShowSummary(false);
+      setShowVocabIntro(!options.skipIntro && shouldShowVocabIntro(nextSubchapter));
+      setLastSummary(null);
+      setLastXpReward(0);
+      setExerciseKey((k) => k + 1);
+    },
+    [activeSubchapter, shouldShowVocabIntro]
+  );
 
   // Generate exercises
   useEffect(() => {
@@ -335,7 +346,7 @@ export function LessonReader() {
     }
   }, [activeSubchapter, isTestMode, chapter]);
 
-  const loadChapter = async () => {
+  const loadChapter = async (options: { preserveSession?: boolean; preserveSelection?: boolean } = {}) => {
     if (!chapterId) {
       setError(t('lessonReader.chapterNotFound'));
       setIsLoading(false);
@@ -372,17 +383,25 @@ export function LessonReader() {
       setIsLocked(false);
       setChapter(foundChapter);
 
+      let selectedSubchapter: Subchapter | null = null;
+
       if (!isTestMode) {
-        const firstCurrent = foundChapter.subchapters.find((s: Subchapter) => s.status === 'CURRENT');
-        const firstOpen = foundChapter.subchapters.find((s: Subchapter) => s.status !== 'LOCKED');
-        const explicit = foundChapter.subchapters.find(
-          (s: Subchapter) => s.id === preselectedSubchapterId && s.status !== 'LOCKED'
-        );
-        const selected = explicit || firstCurrent || firstOpen || foundChapter.subchapters[0] || null;
-        setActiveSubchapterId(selected?.id || null);
+        if (options.preserveSelection) {
+          selectedSubchapter = foundChapter.subchapters.find((subchapter: Subchapter) => subchapter.id === activeSubchapterId) || null;
+        } else {
+          const firstCurrent = foundChapter.subchapters.find((subchapter: Subchapter) => subchapter.status === 'CURRENT');
+          const firstOpen = foundChapter.subchapters.find((subchapter: Subchapter) => subchapter.status !== 'LOCKED');
+          const explicit = foundChapter.subchapters.find(
+            (subchapter: Subchapter) => subchapter.id === preselectedSubchapterId && subchapter.status !== 'LOCKED'
+          );
+          selectedSubchapter = explicit || firstCurrent || firstOpen || foundChapter.subchapters[0] || null;
+          setActiveSubchapterId(selectedSubchapter?.id || null);
+        }
       }
 
-      resetSession();
+      if (!options.preserveSession) {
+        resetSession({ skipIntro: isTestMode, subchapter: selectedSubchapter });
+      }
     } catch {
       setError(t('lessonReader.loadError'));
     } finally {
@@ -432,7 +451,7 @@ export function LessonReader() {
 
       setLastXpReward(result.xpReward || 0);
       await refreshUser();
-      await loadChapter();
+      await loadChapter({ preserveSession: true, preserveSelection: true });
       return { success: true };
     } catch {
       setLastXpReward(0);
@@ -474,7 +493,7 @@ export function LessonReader() {
       const nextSub = chapter.subchapters[currentIndex + 1];
       if (nextSub && nextSub.status !== 'LOCKED') {
         setActiveSubchapterId(nextSub.id);
-        resetSession();
+        resetSession({ subchapter: nextSub });
       } else {
         router.push('/path');
       }
@@ -597,7 +616,7 @@ export function LessonReader() {
                 disabled={isSubLocked}
                 onClick={() => {
                   setActiveSubchapterId(sub.id);
-                  resetSession();
+                  resetSession({ subchapter: sub });
                 }}
                 className={`w-full text-left rounded-xl border p-2.5 transition-all duration-200 ${
                   isActive
@@ -664,7 +683,7 @@ export function LessonReader() {
               lastSummary.heartsRemaining === 0 ? (
                 <GameOverScreen
                   title={activeSubchapter.title}
-                  onRetry={resetSession}
+                  onRetry={() => resetSession({ skipIntro: true })}
                   onBackToOverview={() => router.push('/path')}
                 />
               ) : (
@@ -673,10 +692,20 @@ export function LessonReader() {
                   xpReward={lastXpReward}
                   title={activeSubchapter.title}
                   isPremium={user?.plan === 'PREMIUM'}
-                  onRetry={resetSession}
+                  onRetry={() => resetSession({ skipIntro: true })}
                   onContinue={handleContinue}
                 />
               )
+            ) : showVocabIntro ? (
+              <VocabIntro
+                vocabulary={activeSubchapter.vocabulary}
+                onStart={() => setShowVocabIntro(false)}
+                onSkip={() => setShowVocabIntro(false)}
+                canSkip={activeSubchapter.status === 'COMPLETED'}
+                language={language}
+                sourceLanguage={chapter.sourceLanguage}
+                targetLanguage={chapter.targetLanguage}
+              />
             ) : (
               <ExerciseRunner
                 key={exerciseKey}
