@@ -114,17 +114,18 @@ model Subchapter {
 }
 
 model Vocabulary {
-  id                String             @id @default(cuid())
-  subchapterId      String
-  word              String
-  translation       String
-  example           String?            @db.Text
-  translatedExample String?            @db.Text
-  order             Int
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  subchapter        Subchapter         @relation(fields: [subchapterId], references: [id], onDelete: Cascade)
-  vocabularyReports VocabularyReport[]
+  id                 String             @id @default(cuid())
+  subchapterId       String
+  word               String
+  translation        String
+  example            String?            @db.Text
+  translatedExample  String?            @db.Text
+  alternativeAnswers String[]           @default([])
+  order              Int
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  subchapter         Subchapter         @relation(fields: [subchapterId], references: [id], onDelete: Cascade)
+  vocabularyReports  VocabularyReport[]
 
   @@index([subchapterId])
 }

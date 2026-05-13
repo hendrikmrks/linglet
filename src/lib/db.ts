@@ -310,15 +310,23 @@ export const prisma = {
     },
     create: async ({ data }: any) => {
       const query = `
-        INSERT INTO "Vocabulary" (id, "subchapterId", word, translation, example, "translatedExample", "order", "createdAt", "updatedAt")
-        VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, NOW(), NOW())
+        INSERT INTO "Vocabulary" (id, "subchapterId", word, translation, example, "translatedExample", "alternativeAnswers", "order", "createdAt", "updatedAt")
+        VALUES (gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
         RETURNING *
       `;
-      const result = await db.query(query, [data.subchapterId, data.word, data.translation, data.example, data.translatedExample, data.order]);
+      const result = await db.query(query, [
+        data.subchapterId,
+        data.word,
+        data.translation,
+        data.example,
+        data.translatedExample,
+        data.alternativeAnswers ?? [],
+        data.order,
+      ]);
       return result.rows[0];
     },
     update: async ({ where, data }: any) => {
-      const ALLOWED_FIELDS = new Set(['subchapterId', 'word', 'translation', 'example', 'translatedExample', 'order']);
+      const ALLOWED_FIELDS = new Set(['subchapterId', 'word', 'translation', 'example', 'translatedExample', 'alternativeAnswers', 'order']);
       const fields = Object.keys(data).filter(f => ALLOWED_FIELDS.has(f));
       if (fields.length === 0) throw new Error('No valid fields to update');
       const values = fields.map(f => (data as any)[f]);

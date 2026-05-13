@@ -6,6 +6,7 @@ const mockVocab = [
     id: '1',
     word: 'Hund',
     translation: 'cachorro',
+    alternativeAnswers: ['canino'],
     example: 'Der Hund spielt im Park.',
     translatedExample: 'O cachorro brinca no parque.',
   },
@@ -43,6 +44,11 @@ const exerciseTypes: GeneratedExercise['type'][] = [
   'word-scramble',
 ];
 
+function getAcceptedAnswers(id: string) {
+  const vocab = mockVocab.find((entry) => entry.id === id)!;
+  return [vocab.translation, ...(vocab.alternativeAnswers ?? [])];
+}
+
 describe('generateExercises', () => {
   it('returns empty array for empty input', () => {
     expect(generateExercises([])).toEqual([]);
@@ -58,7 +64,7 @@ describe('generateExercises', () => {
     expect(result.every((exercise) => exerciseTypes.includes(exercise.type))).toBe(true);
   });
 
-  it('all translate-choice exercises have exactly 4 options', () => {
+  it('all translate-choice exercises have exactly 4 options and valid correct indices', () => {
     const result = generateExercises(mockVocab);
     const translateChoices = result.filter((exercise) => exercise.type === 'translate-choice');
     expect(translateChoices.length).toBeGreaterThan(0);
@@ -66,10 +72,12 @@ describe('generateExercises', () => {
     for (const exercise of translateChoices) {
       if (exercise.type !== 'translate-choice') continue;
       expect(exercise.options).toHaveLength(4);
-      expect(exercise.correctIndex).toBeGreaterThanOrEqual(0);
-      expect(exercise.correctIndex).toBeLessThanOrEqual(3);
-      const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
-      expect(exercise.options[exercise.correctIndex]).toBe(vocab.translation);
+      expect(exercise.correctIndices.length).toBeGreaterThan(0);
+      const acceptedAnswers = getAcceptedAnswers(exercise.vocabularyId);
+      const expectedCorrectIndices = exercise.options
+        .map((option, index) => (acceptedAnswers.includes(option) ? index : -1))
+        .filter((index) => index >= 0);
+      expect(exercise.correctIndices).toEqual(expectedCorrectIndices);
     }
   });
 
@@ -81,8 +89,10 @@ describe('generateExercises', () => {
     for (const exercise of reverseChoices) {
       if (exercise.type !== 'reverse-choice') continue;
       expect(exercise.options).toHaveLength(4);
+      expect(exercise.correctIndices.length).toBe(1);
       const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
-      expect(exercise.options[exercise.correctIndex]).toBe(vocab.word);
+      expect(exercise.options[exercise.correctIndices[0]]).toBe(vocab.word);
+      expect(getAcceptedAnswers(exercise.vocabularyId)).toContain(exercise.prompt);
     }
   });
 
@@ -97,19 +107,18 @@ describe('generateExercises', () => {
     }
   });
 
-  it('type-answer exercises have correctAnswer equal to the translation', () => {
+  it('type-answer exercises expose all accepted answers with the translation first', () => {
     const result = generateExercises(mockVocab);
     const typedAnswers = result.filter((exercise) => exercise.type === 'type-answer');
     expect(typedAnswers.length).toBeGreaterThan(0);
 
     for (const exercise of typedAnswers) {
       if (exercise.type !== 'type-answer') continue;
-      const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
-      expect(exercise.correctAnswer).toBe(vocab.translation);
+      expect(exercise.acceptedAnswers).toEqual(getAcceptedAnswers(exercise.vocabularyId));
     }
   });
 
-  it('fill-in-blank exercises only use target-language examples and blank the translation', () => {
+  it('fill-in-blank exercises only use target-language examples and blank accepted answers', () => {
     const result = generateExercises(mockVocab);
     const fillInBlank = result.filter((exercise) => exercise.type === 'fill-in-blank');
     expect(fillInBlank.length).toBeGreaterThan(0);
@@ -117,11 +126,15 @@ describe('generateExercises', () => {
     for (const exercise of fillInBlank) {
       if (exercise.type !== 'fill-in-blank') continue;
       const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
+      const acceptedAnswers = getAcceptedAnswers(exercise.vocabularyId);
       expect(vocab.translatedExample).toBeTruthy();
       expect(exercise.sentence).toContain('_____');
-      expect(exercise.sentence).not.toContain(vocab.translation);
+      expect(acceptedAnswers.some((answer) => exercise.sentence.includes(answer))).toBe(false);
       expect(exercise.options).toHaveLength(4);
-      expect(exercise.options[exercise.correctIndex]).toBe(vocab.translation);
+      const expectedCorrectIndices = exercise.options
+        .map((option, index) => (acceptedAnswers.includes(option) ? index : -1))
+        .filter((index) => index >= 0);
+      expect(exercise.correctIndices).toEqual(expectedCorrectIndices);
       expect(exercise.options).not.toContain(vocab.word);
     }
   });
@@ -138,27 +151,46 @@ describe('generateExercises', () => {
       if (exercise.isCorrect) {
         expect(exercise.proposedTranslation).toBe(vocab.translation);
       } else {
-        expect(exercise.proposedTranslation).not.toBe(vocab.translation);
+        expect(getAcceptedAnswers(exercise.vocabularyId)).not.toContain(exercise.proposedTranslation);
       }
     }
   });
 
-  it('word-scramble exercises require spelling the target translation, not the source word', () => {
+  it('word-scramble exercises require spelling a valid target translation', () => {
     const result = generateExercises(mockVocab);
     const wordScrambles = result.filter((exercise) => exercise.type === 'word-scramble');
     expect(wordScrambles.length).toBeGreaterThan(0);
 
     for (const exercise of wordScrambles) {
       if (exercise.type !== 'word-scramble') continue;
+      const acceptedAnswers = getAcceptedAnswers(exercise.vocabularyId);
       const vocab = mockVocab.find((entry) => entry.id === exercise.vocabularyId)!;
       expect(exercise.prompt).toBe(vocab.word);
-      expect(exercise.correctWord).toBe(vocab.translation);
-      expect(exercise.scrambledWord).not.toBe(vocab.translation);
-      expect(exercise.scrambledWord.length).toBe(vocab.translation.length);
+      expect(exercise.acceptedAnswers).toContain(exercise.correctWord);
+      expect(acceptedAnswers).toContain(exercise.correctWord);
+      expect(exercise.scrambledWord).not.toBe(exercise.correctWord);
+      expect(exercise.scrambledWord.length).toBe(exercise.correctWord.length);
     }
   });
 
-  it('no translate-choice with only 1 vocab item (needs >= 2 distractors)', () => {
+  it('can generate a word-scramble from a scrambleable alternative answer', () => {
+    const result = generateExercises([
+      {
+        id: 'alt-1',
+        word: 'Gruß',
+        translation: 'bom dia',
+        alternativeAnswers: ['sauda'],
+      },
+    ]);
+
+    const exercise = result.find((entry) => entry.type === 'word-scramble');
+    expect(exercise).toBeTruthy();
+    if (exercise?.type !== 'word-scramble') return;
+    expect(exercise.correctWord).toBe('sauda');
+    expect(exercise.acceptedAnswers).toEqual(['sauda']);
+  });
+
+  it('no translate-choice with only 1 vocab item (needs >= 1 distractor)', () => {
     const result = generateExercises([mockVocab[0]]);
     const translateChoices = result.filter((exercise) => exercise.type === 'translate-choice');
     expect(translateChoices).toHaveLength(0);

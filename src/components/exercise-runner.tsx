@@ -29,11 +29,12 @@ function MultipleChoice({ exercise, onResult }: ExerciseProps) {
   const { t } = useTranslation(language);
 
   const label = ex.type === 'translate-choice' ? t('exercise.whatDoesThisMean') : t('exercise.whichWordFits');
+  const correctAnswers = ex.correctIndices.map((index) => ex.options[index]).join(', ');
 
   const handleSelect = (idx: number) => {
     if (feedback !== 'idle') return;
     setSelected(idx);
-    const isCorrect = idx === ex.correctIndex;
+    const isCorrect = ex.correctIndices.includes(idx);
     setFeedback(isCorrect ? 'correct' : 'wrong');
 
     setTimeout(() => {
@@ -53,7 +54,7 @@ function MultipleChoice({ exercise, onResult }: ExerciseProps) {
           let border = 'border-gray-200 hover:border-blue-400';
           let bg = 'bg-white';
 
-          if (feedback !== 'idle' && idx === ex.correctIndex) {
+          if (feedback !== 'idle' && ex.correctIndices.includes(idx)) {
             border = 'border-green-500';
             bg = 'bg-green-50';
           } else if (feedback === 'wrong' && idx === selected) {
@@ -83,7 +84,7 @@ function MultipleChoice({ exercise, onResult }: ExerciseProps) {
       )}
       {feedback === 'wrong' && (
         <div className="mt-4 rounded-xl bg-red-100 border border-red-300 text-red-800 font-bold p-3 text-center">
-          ❌ {t('exercise.wrongCorrectIs')}: <span className="underline">{ex.options[ex.correctIndex]}</span>
+          ❌ {t('exercise.wrongCorrectIs')}: <span className="underline">{correctAnswers}</span>
         </div>
       )}
     </div>
@@ -102,11 +103,12 @@ function FillInBlank({ exercise, onResult }: ExerciseProps) {
   const { t } = useTranslation(language);
   const [beforeBlank, ...afterBlankParts] = ex.sentence.split('_____');
   const afterBlank = afterBlankParts.join('_____');
+  const correctAnswers = ex.correctIndices.map((index) => ex.options[index]).join(', ');
 
   const handleSelect = (idx: number) => {
     if (feedback !== 'idle') return;
     setSelected(idx);
-    const isCorrect = idx === ex.correctIndex;
+    const isCorrect = ex.correctIndices.includes(idx);
     setFeedback(isCorrect ? 'correct' : 'wrong');
 
     setTimeout(() => {
@@ -131,7 +133,7 @@ function FillInBlank({ exercise, onResult }: ExerciseProps) {
           let border = 'border-gray-200 hover:border-blue-400';
           let bg = 'bg-white';
 
-          if (feedback !== 'idle' && idx === ex.correctIndex) {
+          if (feedback !== 'idle' && ex.correctIndices.includes(idx)) {
             border = 'border-green-500';
             bg = 'bg-green-50';
           } else if (feedback === 'wrong' && idx === selected) {
@@ -161,7 +163,7 @@ function FillInBlank({ exercise, onResult }: ExerciseProps) {
       )}
       {feedback === 'wrong' && (
         <div className="mt-4 rounded-xl bg-red-100 border border-red-300 text-red-800 font-bold p-3 text-center">
-          ❌ {t('exercise.wrongCorrectIs')}: <span className="underline">{ex.options[ex.correctIndex]}</span>
+          ❌ {t('exercise.wrongCorrectIs')}: <span className="underline">{correctAnswers}</span>
         </div>
       )}
     </div>
@@ -377,7 +379,7 @@ function TypeAnswer({ exercise, onResult }: ExerciseProps) {
 
   const handleCheck = () => {
     if (feedback !== 'idle') return;
-    const isCorrect = normalize(input) === normalize(ex.correctAnswer);
+    const isCorrect = ex.acceptedAnswers.some((answer) => normalize(input) === normalize(answer));
     setFeedback(isCorrect ? 'correct' : 'wrong');
 
     setTimeout(() => {
@@ -426,7 +428,7 @@ function TypeAnswer({ exercise, onResult }: ExerciseProps) {
       )}
       {feedback === 'wrong' && (
         <div className="mt-4 rounded-xl bg-red-100 border border-red-300 text-red-800 font-bold p-3 text-center">
-          ❌ {t('exercise.correctAnswer')}: <span className="underline">{ex.correctAnswer}</span>
+          ❌ {t('exercise.correctAnswer')}: <span className="underline">{ex.acceptedAnswers[0]}</span>
         </div>
       )}
     </div>
@@ -454,7 +456,7 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
   const handleTileClick = (tileId: number) => {
     if (feedback !== 'idle') return;
     if (selectedTileIds.includes(tileId)) return;
-    if (selectedTileIds.length >= ex.correctWord.length) return;
+    if (selectedTileIds.length >= ex.scrambledWord.length) return;
     setSelectedTileIds((currentIds) => [...currentIds, tileId]);
   };
 
@@ -466,7 +468,7 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
   const handleCheck = () => {
     if (feedback !== 'idle') return;
 
-    const isCorrect = currentAnswer === ex.correctWord;
+    const isCorrect = ex.acceptedAnswers.some((answer) => currentAnswer === answer);
     setFeedback(isCorrect ? 'correct' : 'wrong');
 
     if (isCorrect) {
@@ -479,6 +481,7 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
     }
 
     setTimeout(() => {
+      onResult(false);
       setSelectedTileIds([]);
       setFeedback('idle');
     }, 900);
@@ -513,7 +516,7 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
           ))
         ) : (
           <div className="flex min-h-[2.5rem] items-center text-sm font-medium text-gray-400">
-            {Array.from({ length: ex.correctWord.length }, () => '•').join(' ')}
+            {Array.from({ length: ex.scrambledWord.length }, () => '•').join(' ')}
           </div>
         )}
       </div>
@@ -539,7 +542,7 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
         })}
       </div>
 
-      {feedback === 'idle' && currentAnswer.length === ex.correctWord.length && (
+      {feedback === 'idle' && currentAnswer.length === ex.scrambledWord.length && (
         <Button className="mt-4 w-full" onClick={handleCheck}>
           {t('exercise.check')}
         </Button>
@@ -550,7 +553,11 @@ function WordScramble({ exercise, onResult }: ExerciseProps) {
           ✅ {t('exercise.correct')}
         </div>
       )}
-      {feedback === 'wrong' && <div className="mt-4 rounded-xl bg-red-100 border border-red-300 p-3 text-center text-red-800 font-bold">❌</div>}
+      {feedback === 'wrong' && (
+        <div className="mt-4 rounded-xl bg-red-100 border border-red-300 p-3 text-center text-red-800 font-bold">
+          ❌ {t('exercise.correctAnswer')}: <span className="underline">{ex.acceptedAnswers[0]}</span>
+        </div>
+      )}
     </div>
   );
 }

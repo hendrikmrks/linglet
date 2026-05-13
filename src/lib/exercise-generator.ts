@@ -17,6 +17,7 @@ export interface Vocabulary {
   translation: string;
   example?: string;
   translatedExample?: string;
+  alternativeAnswers?: string[];
 }
 
 export type GeneratedExercise =
@@ -24,14 +25,14 @@ export type GeneratedExercise =
       type: 'translate-choice';
       prompt: string;
       options: string[];
-      correctIndex: number;
+      correctIndices: number[];
       vocabularyId: string;
     }
   | {
       type: 'reverse-choice';
       prompt: string;
       options: string[];
-      correctIndex: number;
+      correctIndices: number[];
       vocabularyId: string;
     }
   | {
@@ -41,14 +42,14 @@ export type GeneratedExercise =
   | {
       type: 'type-answer';
       prompt: string;
-      correctAnswer: string;
+      acceptedAnswers: string[];
       vocabularyId: string;
     }
   | {
       type: 'fill-in-blank';
       sentence: string;
       options: string[];
-      correctIndex: number;
+      correctIndices: number[];
       vocabularyId: string;
     }
   | {
@@ -63,6 +64,7 @@ export type GeneratedExercise =
       prompt: string;
       scrambledWord: string;
       correctWord: string;
+      acceptedAnswers: string[];
       vocabularyId: string;
     };
 
@@ -90,28 +92,85 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function uniqueAnswers(values: string[]): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const trimmedValue = value.trim();
+    if (!trimmedValue) {
+      continue;
+    }
+
+    const key = trimmedValue.toLowerCase();
+    if (seen.has(key)) {
+      continue;
+    }
+
+    seen.add(key);
+    result.push(trimmedValue);
+  }
+
+  return result;
+}
+
+function getAcceptedAnswers(vocab: Vocabulary): string[] {
+  return uniqueAnswers([vocab.translation, ...(vocab.alternativeAnswers ?? [])]);
+}
+
 /** Pick `count` random items from `pool`, excluding `exclude`. */
-function pickDistractors(pool: string[], exclude: string, count: number): string[] {
-  const candidates = pool.filter((value) => value.toLowerCase() !== exclude.toLowerCase());
+function pickDistractors(pool: string[], exclude: string[], count: number): string[] {
+  const excluded = new Set(exclude.map((value) => value.trim().toLowerCase()));
+  const candidates = uniqueAnswers(pool).filter((value) => !excluded.has(value.toLowerCase()));
   return shuffle(candidates).slice(0, count);
+}
+
+function getCorrectIndices(options: string[], acceptedAnswers: string[]): number[] {
+  const accepted = new Set(acceptedAnswers.map((answer) => answer.trim().toLowerCase()));
+  return options.reduce<number[]>((indices, option, index) => {
+    if (accepted.has(option.trim().toLowerCase())) {
+      indices.push(index);
+    }
+
+    return indices;
+  }, []);
+}
+
+function buildChoiceOptions(correctOptions: string[], pool: string[]): string[] | null {
+  const includedCorrectOptions = uniqueAnswers(correctOptions).slice(0, 3);
+  const distractorCount = 4 - includedCorrectOptions.length;
+
+  if (distractorCount < 0) {
+    return null;
+  }
+
+  const distractors = pickDistractors(pool, includedCorrectOptions, distractorCount);
+  if (distractors.length < distractorCount) {
+    return null;
+  }
+
+  return shuffle([...includedCorrectOptions, ...distractors]);
 }
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-function replaceWordWithBlank(example: string, word: string): string | null {
+function replaceWordWithBlank(example: string, acceptedAnswers: string[]): string | null {
   const trimmedExample = example.trim();
   if (!trimmedExample) {
     return null;
   }
 
-  const regex = new RegExp(escapeRegExp(word), 'i');
-  if (!regex.test(trimmedExample)) {
-    return null;
+  const candidates = [...uniqueAnswers(acceptedAnswers)].sort((left, right) => right.length - left.length);
+  for (const candidate of candidates) {
+    const regex = new RegExp(escapeRegExp(candidate), 'i');
+    if (regex.test(trimmedExample)) {
+      return trimmedExample.replace(regex, '_____');
+    }
   }
 
-  return trimmedExample.replace(regex, '_____');
+  return null;
 }
 
 function scrambleWord(word: string): string | null {
@@ -131,34 +190,38 @@ function scrambleWord(word: string): string | null {
   return reversed !== word ? reversed : null;
 }
 
+function sortLetters(word: string): string {
+  return word.toLowerCase().split('').sort().join('');
+}
+
 function createTranslateChoice(vocab: Vocabulary, allTranslations: string[]): GeneratedExercise | null {
-  const distractors = pickDistractors(allTranslations, vocab.translation, 3);
-  if (distractors.length < 2) {
+  const acceptedAnswers = getAcceptedAnswers(vocab);
+  const options = buildChoiceOptions(acceptedAnswers, allTranslations);
+  if (!options) {
     return null;
   }
 
-  const options = shuffle([vocab.translation, ...distractors.slice(0, 3)]);
   return {
     type: 'translate-choice',
     prompt: vocab.word,
     options,
-    correctIndex: options.indexOf(vocab.translation),
+    correctIndices: getCorrectIndices(options, acceptedAnswers),
     vocabularyId: vocab.id,
   };
 }
 
 function createReverseChoice(vocab: Vocabulary, allWords: string[]): GeneratedExercise | null {
-  const distractors = pickDistractors(allWords, vocab.word, 3);
-  if (distractors.length < 2) {
+  const distractors = pickDistractors(allWords, [vocab.word], 3);
+  if (distractors.length < 3) {
     return null;
   }
 
-  const options = shuffle([vocab.word, ...distractors.slice(0, 3)]);
+  const options = shuffle([vocab.word, ...distractors]);
   return {
     type: 'reverse-choice',
-    prompt: vocab.translation,
+    prompt: shuffle(getAcceptedAnswers(vocab))[0] ?? vocab.translation,
     options,
-    correctIndex: options.indexOf(vocab.word),
+    correctIndices: getCorrectIndices(options, [vocab.word]),
     vocabularyId: vocab.id,
   };
 }
@@ -168,22 +231,22 @@ function createFillInBlank(vocab: Vocabulary, allTranslations: string[]): Genera
     return null;
   }
 
-  const sentence = replaceWordWithBlank(vocab.translatedExample, vocab.translation);
+  const acceptedAnswers = getAcceptedAnswers(vocab);
+  const sentence = replaceWordWithBlank(vocab.translatedExample, acceptedAnswers);
   if (!sentence) {
     return null;
   }
 
-  const distractors = pickDistractors(allTranslations, vocab.translation, 3);
-  if (distractors.length < 3) {
+  const options = buildChoiceOptions(acceptedAnswers, allTranslations);
+  if (!options) {
     return null;
   }
 
-  const options = shuffle([vocab.translation, ...distractors]);
   return {
     type: 'fill-in-blank',
     sentence,
     options,
-    correctIndex: options.indexOf(vocab.translation),
+    correctIndices: getCorrectIndices(options, acceptedAnswers),
     vocabularyId: vocab.id,
   };
 }
@@ -192,12 +255,11 @@ function createTrueFalse(
   vocab: Vocabulary,
   allTranslations: string[]
 ): Extract<GeneratedExercise, { type: 'true-false' }> {
-  const fakeTranslations = allTranslations.filter(
-    (translation) => translation.toLowerCase() !== vocab.translation.toLowerCase()
-  );
+  const acceptedAnswers = getAcceptedAnswers(vocab);
+  const fakeTranslations = pickDistractors(allTranslations, acceptedAnswers, allTranslations.length);
   const canUseFake = fakeTranslations.length > 0;
   const isCorrect = canUseFake ? Math.random() >= 0.5 : true;
-  const proposedTranslation = isCorrect ? vocab.translation : shuffle(fakeTranslations)[0]!;
+  const proposedTranslation = isCorrect ? acceptedAnswers[0] : shuffle(fakeTranslations)[0]!;
 
   return {
     type: 'true-false',
@@ -209,21 +271,42 @@ function createTrueFalse(
 }
 
 function createWordScramble(vocab: Vocabulary): GeneratedExercise | null {
-  const trimmedTranslation = vocab.translation.trim();
-  if (/\s/.test(trimmedTranslation)) {
+  const acceptedAnswers = getAcceptedAnswers(vocab);
+  const scrambleCandidates = acceptedAnswers
+    .map((answer) => {
+      const trimmedAnswer = answer.trim();
+      if (/\s/.test(trimmedAnswer)) {
+        return null;
+      }
+
+      const scrambledWord = scrambleWord(trimmedAnswer);
+      if (!scrambledWord) {
+        return null;
+      }
+
+      return {
+        answer: trimmedAnswer,
+        scrambledWord,
+      };
+    })
+    .filter(Boolean) as { answer: string; scrambledWord: string }[];
+
+  const selectedCandidate = scrambleCandidates[0];
+  if (!selectedCandidate) {
     return null;
   }
 
-  const scrambledWord = scrambleWord(trimmedTranslation);
-  if (!scrambledWord) {
-    return null;
-  }
+  const anagramAnswers = uniqueAnswers(
+    acceptedAnswers.filter((answer) => sortLetters(answer.trim()) === sortLetters(selectedCandidate.answer))
+  );
+  const scrambleAcceptedAnswers = uniqueAnswers([selectedCandidate.answer, ...anagramAnswers]);
 
   return {
     type: 'word-scramble',
     prompt: vocab.word,
-    scrambledWord,
-    correctWord: trimmedTranslation,
+    scrambledWord: selectedCandidate.scrambledWord,
+    correctWord: selectedCandidate.answer,
+    acceptedAnswers: scrambleAcceptedAnswers,
     vocabularyId: vocab.id,
   };
 }
@@ -252,7 +335,7 @@ export function generateExercises(vocabulary: Vocabulary[]): GeneratedExercise[]
     return [];
   }
 
-  const allTranslations = vocabulary.map((vocab) => vocab.translation);
+  const allTranslations = vocabulary.flatMap((vocab) => getAcceptedAnswers(vocab));
   const allWords = vocabulary.map((vocab) => vocab.word);
   const shuffledVocab = shuffle(vocabulary);
 
@@ -280,7 +363,7 @@ export function generateExercises(vocabulary: Vocabulary[]): GeneratedExercise[]
     pools['type-answer'].push({
       type: 'type-answer',
       prompt: vocab.word,
-      correctAnswer: vocab.translation,
+      acceptedAnswers: getAcceptedAnswers(vocab),
       vocabularyId: vocab.id,
     });
 

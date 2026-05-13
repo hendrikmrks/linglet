@@ -37,12 +37,19 @@ export async function PATCH(
     const { id } = await params;
     const body = await request.json();
     const { word, translation, example, translatedExample, order, subchapterId } = body;
+    const alternativeAnswers = Array.isArray(body.alternativeAnswers)
+      ? body.alternativeAnswers
+          .filter((answer: unknown): answer is string => typeof answer === 'string')
+          .map((answer: string) => answer.trim())
+          .filter(Boolean)
+      : undefined;
 
     const updateData: any = {};
     if (word !== undefined) updateData.word = word;
     if (translation !== undefined) updateData.translation = translation;
     if (example !== undefined) updateData.example = example;
     if (translatedExample !== undefined) updateData.translatedExample = translatedExample;
+    if (alternativeAnswers !== undefined) updateData.alternativeAnswers = alternativeAnswers;
     if (order !== undefined) updateData.order = order;
     if (subchapterId !== undefined) updateData.subchapterId = subchapterId;
 

@@ -1,0 +1,2 @@
+ALTER TABLE "Vocabulary"
+ADD COLUMN IF NOT EXISTS "alternativeAnswers" TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[];

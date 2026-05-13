@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
       translation: row.translation,
       example: row.example,
       translatedExample: row.translatedExample,
+      alternativeAnswers: row.alternativeAnswers ?? [],
       order: row.order,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
@@ -102,6 +103,12 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const { subchapterId, word, translation, example, translatedExample, order } = body;
+    const alternativeAnswers = Array.isArray(body.alternativeAnswers)
+      ? body.alternativeAnswers
+          .filter((answer: unknown): answer is string => typeof answer === 'string')
+          .map((answer: string) => answer.trim())
+          .filter(Boolean)
+      : [];
 
     if (!subchapterId || !word || !translation) {
       return NextResponse.json({ error: 'SubchapterId, word, and translation are required' }, { status: 400 });
@@ -128,10 +135,10 @@ export async function POST(request: NextRequest) {
     }
 
     const insertResult = await db.query(
-      `INSERT INTO "Vocabulary" ("subchapterId", word, translation, example, "translatedExample", "order", "createdAt", "updatedAt")
-       VALUES ($1, $2, $3, $4, $5, $6, NOW(), NOW())
+      `INSERT INTO "Vocabulary" ("subchapterId", word, translation, example, "translatedExample", "alternativeAnswers", "order", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
        RETURNING *`,
-      [subchapterId, word, translation, example, translatedExample, vocabOrder]
+      [subchapterId, word, translation, example, translatedExample, alternativeAnswers, vocabOrder]
     );
 
     const vocabulary = insertResult.rows[0];
@@ -156,6 +163,7 @@ export async function POST(request: NextRequest) {
       translation: row.translation,
       example: row.example,
       translatedExample: row.translatedExample,
+      alternativeAnswers: row.alternativeAnswers ?? [],
       order: row.order,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
